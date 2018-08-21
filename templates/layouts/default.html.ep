@@ -19,7 +19,7 @@
   </head>
   <body>
     <div class="container" id="app">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 20px;">
         <a class="navbar-brand" href="#">Web Interface</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -45,6 +45,12 @@
                  @click="active=2"
                  href="#">Items</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link"
+                 v-bind:class="{ active:(active==3) }"
+                 @click="active=3"
+                 href="#">Locations</a>
+            </li>
           </ul>
           <a class="nav-link" href="#">Logout</a>
         </div>
@@ -52,7 +58,6 @@
 
       <div class="content">
         <%= content %>
-        {{ message }}
       </div>
     </div>
     <script type="text/javascript">
@@ -61,6 +66,21 @@
         data: function() {
           return {
             active: 0,
+            items: { 1: 'Item 1',
+                     2: 'Item 2',
+                     3: 'Item 3',
+                     4: 'Item 4' },
+            locations: { 1: 'Dallas',
+                         2: 'New York',
+                         3: 'Chicago' },
+            days: { 0: 'Sunday',
+                    1: 'Monday',
+                    2: 'Tuesday',
+                    3: 'Wednesday',
+                    4: 'Thursday',
+                    5: 'Friday',
+                    6: 'Saturday'
+            }
           }
         },
         methods: {

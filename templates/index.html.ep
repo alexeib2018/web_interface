@@ -1,3 +1,14 @@
 % layout 'default';
-% title 'Welcome';
-Welcome to the Web Interface Application!
+% title 'Web interface';
+
+<div v-if="active==3">
+  <table class="table table-striped table-sm">
+    <tbody>
+      <tr v-for="location in locations">
+        <td>{{ location }}</td>
+        <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" class="btn btn-danger">New Location</button>
+</div>
