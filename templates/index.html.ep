@@ -1,5 +1,19 @@
+<!doctype html>
 % layout 'default';
 % title 'Web interface';
+
+
+<div v-if="active==2">
+  <table class="table table-striped table-sm">
+    <tbody>
+      <tr v-for="item in items">
+        <td>{{ item }}</td>
+        <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" class="btn btn-danger">New Item</button>
+</div>
 
 <div v-if="active==3">
   <table class="table table-striped table-sm">
