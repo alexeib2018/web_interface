@@ -119,7 +119,25 @@
                 this.table.push( { day: day,
                                    row: table[ day ] } )
               }
-            }            
+            }
+          },
+          table_by_location: function() {
+            table = {}
+            for(var i in this.data) {
+              var data = this.data[i]
+              if (table[ this.locations[ data.location ] ] === undefined) {
+                table[ this.locations[ data.location ] ] = []
+              }
+              table[ this.locations[ data.location ] ].push( { item: this.items[ data.item ],
+                                                               qte: data.qte,
+                                                               day: this.days[ data.day ] } )
+            }
+            this.table = []
+            for( var location in table ) {
+              var row = table[location]
+              this.table.push( { location: location,
+                                 row: row } )
+            }
           }
         },
         watch: {
@@ -128,7 +146,7 @@
               this.table_by_date()
             }
             if (val==1) {
-
+              this.table_by_location()
             }
           }
         },
