@@ -4,6 +4,7 @@ var app = new Vue({
     return {
       login: 0,
       active: 0,
+      index: '',
       days: { 0: 'Sunday',
               1: 'Monday',
               2: 'Tuesday',
@@ -57,21 +58,21 @@ var app = new Vue({
       table = {}
       for(var i in this.data) {
         var data = this.data[i]
-        if (table[ this.days[ data.day ] ] === undefined) {
-          table[ this.days[ data.day ] ] = []
+        if (table[ data.day ] === undefined) {
+          table[ data.day ] = []
         }
-        table[ this.days[ data.day ] ].push( { item: this.items[ data.item ],
-                                               qte: data.qte,
-                                               location: this.locations[ data.location ] } )
+        if ( table[ data.day ].indexOf(data.location) == -1 ) {
+          table[ data.day ].push( data.location )
+        }
       }
       this.table = []
       for( var i in this.days ) {
-        var day = this.days[i]
-        if (table[ day ] !== undefined) {
-          this.table.push( { day: day,
-                             row: table[ day ] } )
+        if (table[ i ] !== undefined) {
+          this.table.push( { day: i,
+                             location: table[ i ] } )
         }
       }
+      console.log('Day table')
     },
     table_by_location: function() {
       table = {}
@@ -94,10 +95,12 @@ var app = new Vue({
     proc_login: function() {
       this.login = 1
       this.active = 1
+      this.index = ''
     },
     proc_logout: function() {
       this.login = 0
       this.active = 0
+      this.index = ''
     }
   },
   watch: {
@@ -111,6 +114,5 @@ var app = new Vue({
     }
   },
   mounted: function() {
-    this.table_by_date()
   }
 })
