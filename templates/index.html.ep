@@ -3,6 +3,31 @@
 % title 'Web interface';
 
 
+<div v-if="!login">
+	<div class="row" style="margin-top: 100px">
+		<div class="col-1">&nbsp;</div>
+		<div class="col-3" style="text-align:right">Login</div>
+		<div class="col-3"><input type="text"></div>
+		<div class="col-5">&nbsp;</div>
+	</div>
+	<div class="row">
+		<div class="col-1">&nbsp;</div>
+		<div class="col-3" style="text-align:right">Password</div>
+		<div class="col-3"><input type="password"></div>
+		<div class="col-5">&nbsp;</div>
+	</div>
+	<div class="row">
+		<div class="col-1">&nbsp;</div>
+		<div class="col-3">&nbsp;</div>
+		<div class="col-3">
+			<button type="button"
+					@click="proc_login()"
+			        class="btn btn-warning btn-sm">Login</button>
+		</div>
+		<div class="col-5">&nbsp;</div>
+	</div>
+</div>
+
 <div v-if="active==1">
   <ul>
   	<li v-for="row in table">

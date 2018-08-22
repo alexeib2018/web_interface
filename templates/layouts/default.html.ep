@@ -17,7 +17,7 @@
 
     <title><%= title %></title>
   </head>
-  <body>
+  <body style="min-height:100vh">
     <div class="container" id="app">
       <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 20px;">
         <a class="navbar-brand" href="#">Web Interface</a>
@@ -27,26 +27,29 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto nav-pills">
-            <li class="nav-item">
+            <li class="nav-item" v-if="login">
               <a class="nav-link"
                  v-bind:class="{ active:(active==1) }"
                  @click="active=1"
                  href="#">Single day</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="login">
               <a class="nav-link"
                  v-bind:class="{ active:(active==2) }"
                  @click="active=2"
                  href="#">Single location</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="login">
               <a class="nav-link"
                  v-bind:class="{ active:(active==3) }"
                  @click="active=3"
                  href="#">Locations</a>
             </li>
           </ul>
-          <a class="nav-link" href="#">Logout</a>
+          <a class="nav-link"
+              v-if="login"
+              @click="proc_logout()"
+              href="#">Logout</a>
         </div>
       </nav>
 
@@ -59,6 +62,7 @@
         el: '#app',
         data: function() {
           return {
+            login: 0,
             active: 0,
             days: { 0: 'Sunday',
                     1: 'Monday',
@@ -132,6 +136,14 @@
               this.table.push( { location: location,
                                  row: row } )
             }
+          },
+          proc_login: function() {
+            this.login = 1
+            this.active = 1
+          },
+          proc_logout: function() {
+            this.login = 0
+            this.active = 0
           }
         },
         watch: {
