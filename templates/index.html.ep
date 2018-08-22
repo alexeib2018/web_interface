@@ -3,12 +3,11 @@
 % title 'Web interface';
 
 
-<div v-if="active==0">
+<div v-if="active==1">
   <ul>
   	<li v-for="row in table">
 	  <b>{{ row.day }}</b>
   	  <button type="button" class="btn btn-success btn-sm">New Item</button>
-  	  <button type="button" class="btn btn-warning btn-sm">Pause</button>
 	  <table class="table table-striped table-sm">
 		<tbody>
 		  <tr v-for="item in row.row">
@@ -26,12 +25,11 @@
   </ul>
 </div>
 
-<div v-if="active==1">
+<div v-if="active==2">
   <ul>
   	<li v-for="row in table">
 	  <b>{{ row.location }}</b>
   	  <button type="button" class="btn btn-success btn-sm">New Item</button>
-  	  <button type="button" class="btn btn-warning btn-sm">Pause</button>
 	  <table class="table table-striped table-sm">
 		<tbody>
 		  <tr v-for="item in row.row">
@@ -49,7 +47,7 @@
   </ul>
 </div>
 
-<div v-if="active==2">
+<div v-if="active==3">
   <table class="table table-striped table-sm">
     <tbody>
       <tr v-for="location in locations">
@@ -62,5 +60,5 @@
       </tr>
     </tbody>
   </table>
-  <button type="button" class="btn btn-success">New Location</button>
+  <button type="button" class="btn btn-success btn-sm">New Location</button>
 </div>

@@ -29,20 +29,20 @@
           <ul class="navbar-nav mr-auto nav-pills">
             <li class="nav-item">
               <a class="nav-link"
-                 v-bind:class="{ active:(active==0) }"
-                 @click="active=0"
-                 href="#">Single day</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"
                  v-bind:class="{ active:(active==1) }"
                  @click="active=1"
-                 href="#">Single location</a>
+                 href="#">Single day</a>
             </li>
             <li class="nav-item">
               <a class="nav-link"
                  v-bind:class="{ active:(active==2) }"
                  @click="active=2"
+                 href="#">Single location</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link"
+                 v-bind:class="{ active:(active==3) }"
+                 @click="active=3"
                  href="#">Locations</a>
             </li>
           </ul>
@@ -136,10 +136,10 @@
         },
         watch: {
           active: function(val) {
-            if (val==0) {
+            if (val==1) {
               this.table_by_date()
             }
-            if (val==1) {
+            if (val==2) {
               this.table_by_location()
             }
           }
