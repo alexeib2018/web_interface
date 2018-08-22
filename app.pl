@@ -2,6 +2,13 @@
 use Mojolicious::Lite;
 use DBI;
 
+my $dbhost = "ec2-54-235-160-57.compute-1.amazonaws.com";
+my $dbport = "5432";
+my $dbname = "d1kbiva5h13qal";
+my $username = "ucxzubqrwjbhiy";
+my $password = "08e5f16ea2cc3bbb976949d48c513bcdc39dd37726a17eadf363a81baf5b79fb";
+
+
 get '/' => sub {
     my $self = shift;
     $self->render('index');
@@ -10,11 +17,6 @@ get '/' => sub {
 get '/api' => sub {
     my $self = shift;
 
-	my $dbname = "d1kbiva5h13qal";
-	my $username = "ucxzubqrwjbhiy";
-	my $password = "08e5f16ea2cc3bbb976949d48c513bcdc39dd37726a17eadf363a81baf5b79fb";
-	my $dbhost = "ec2-54-235-160-57.compute-1.amazonaws.com";
-	my $dbport = "5432";
 	my $dboptions = "-e";
 	my $dbtty = "ansi";
 
