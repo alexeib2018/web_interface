@@ -9,26 +9,19 @@ my $username = "ucxzubqrwjbhiy";
 my $password = "08e5f16ea2cc3bbb976949d48c513bcdc39dd37726a17eadf363a81baf5b79fb";
 
 
-get '/' => sub {
-    my $self = shift;
-    $self->render('index');
-};
+sub select_json {
+	my $fields = shift;
+	my $table = shift;
+	my $addon = shift;
 
-get '/api' => sub {
-    my $self = shift;
+	my $join_fields = join ',', @$fields;
+	my $query = "SELECT $join_fields FROM $table $addon;";
 
 	my $dboptions = "-e";
 	my $dbtty = "ansi";
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
-
-	if ($DBI::err != 0) {
-	  print $DBI::errstr . "\n";
-	  exit($DBI::err);
-	}
-
-	my $query = "SELECT * FROM pg_tables";
 
 	my $sth = $dbh->prepare($query);
 	my $rv = $sth->execute();
@@ -37,18 +30,35 @@ get '/api' => sub {
 	  exit(0);
 	}
 
-	my $result = '';
+	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
-	  foreach my $i (@array) {
-	    $result .= "$i\t";
+	  my @row=();
+	  for(my $i=0; $i<scalar @$fields; $i++) {
+	  	my $field = @$fields[$i];
+	  	my $value = $array[$i];
+	    push @row, '"'.$field.'":"'.$value.'"';
 	  }
-	  $result .= "<br>\n";
+	  push @result, '{'.(join ',', @row).'}';
 	}
 
 	$sth->finish();
 	$dbh->disconnect();
 
-    $self->render(text => $result);
+	'['.(join ',', @result).']'
+}
+
+get '/' => sub {
+    my $self = shift;
+    $self->render('index');
+};
+
+get '/api' => sub {
+    my $self = shift;
+
+    my @fields = ('name', 'password');
+    my $result = select_json( ['name'], 'customer', "WHERE name='alexei' AND password='alexeib123'" );
+
+    $self->render(text => $result, format => 'json');
 };
 
 app->start;
