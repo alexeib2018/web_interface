@@ -38,41 +38,15 @@
 		      @click="index=''+row.day+'_'+location"
 		      style="cursor: pointer">
 		    <td style="width: 25%">
-		    	<span v-if="index==''+row.day+'_'+location">[-]</span>
+		    	<span v-if="index==''+row.day+'_'+location">[&ndash;]</span>
 		    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
  	    	    {{ locations[location] }}
 		    </td>
 		    <td style="width: 55%">
 		    	<table style="width:100%" v-if="index==''+row.day+'_'+location">
-		    		<tr>
-		    			<td>
-		    				Item 1
-		    			</td>
-		    			<td>
-		    				10
-		    			</td>
-		    			<td style="text-align:right">
-					    	<button type="button" class="btn btn-danger btn-sm">Delete</button>
-		    			</td>
-		    		</tr>
-		    		<tr>
-		    			<td>
-		    				Item 2
-		    			</td>
-		    			<td>
-		    				20
-		    			</td>
-		    			<td style="text-align:right">
-					    	<button type="button" class="btn btn-danger btn-sm">Delete</button>
-		    			</td>
-		    		</tr>
-		    		<tr>
-		    			<td>
-		    				Item 3
-		    			</td>
-		    			<td>
-		    				30
-		    			</td>
+		    		<tr v-for="item in index_table">
+		    			<td>{{ item.item }}</td>
+		    			<td>{{ item.qte }}</td>
 		    			<td style="text-align:right">
 					    	<button type="button" class="btn btn-danger btn-sm">Delete</button>
 		    			</td>
@@ -82,7 +56,7 @@
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+row.day+'_'+location">
 			      	<button type="button" class="btn btn-success btn-sm">New Item</button>
-			    	<button type="button" class="btn btn-warning btn-sm">Clone</button>
+			    	<button type="button" class="btn btn-warning btn-sm">Copy</button>
 			    </div>
 		    </td>
 		  </tr>

@@ -50,12 +50,15 @@ var app = new Vue({
         { day: 6, location: 1, item: 2, qte: 27 },
         { day: 0, location: 2, item: 3, qte: 28 },
       ],
-      table: []
+      table: [],
+      index_table: [ { item: 'Item 1', qte: 11 },
+                     { item: 'Item 2', qte: 22 },
+                     { item: 'Item 3', qte: 33 }, ]
     }
   },
   methods: {
     table_by_date: function() {
-      table = {}
+      var table = {}
       for(var i in this.data) {
         var data = this.data[i]
         if (table[ data.day ] === undefined) {
@@ -67,15 +70,15 @@ var app = new Vue({
       }
       this.table = []
       for( var i in this.days ) {
-        if (table[ i ] !== undefined) {
-          this.table.push( { day: i,
-                             location: table[ i ] } )
+        if (table[ i ] === undefined) {
+          this.table = []
         }
+        this.table.push( { day: i,
+                           location: table[ i ] } )
       }
-      console.log('Day table')
     },
     table_by_location: function() {
-      table = {}
+      var table = {}
       for(var i in this.data) {
         var data = this.data[i]
         if (table[ this.locations[ data.location ] ] === undefined) {
@@ -90,6 +93,23 @@ var app = new Vue({
         var row = table[location]
         this.table.push( { location: location,
                            row: row } )
+      }
+    },
+    index_table_collect: function() {
+      var day
+      var location
+      var pos = this.index.indexOf('_')
+      if (pos > 0) {
+        day = this.index.substr(0,pos)
+        location = this.index.substr(pos+1)
+        this.index_table = []
+        for(var i in this.data) {
+          var item = this.data[i]
+          if (item.day==day && item.location==location) {
+            this.index_table.push( { item: this.items[item.item],
+                                     qte: item.qte } )
+          }
+        }
       }
     },
     proc_login: function() {
@@ -111,6 +131,9 @@ var app = new Vue({
       if (val==2) {
         this.table_by_location()
       }
+    },
+    index: function() {
+      this.index_table_collect()
     }
   },
   mounted: function() {
