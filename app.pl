@@ -61,4 +61,13 @@ get '/api' => sub {
     $self->render(text => $result, format => 'json');
 };
 
+post '/api/login' => sub {
+	my $self = shift;
+	my $name = $self->param('name');
+	my $password = $self->param('password');
+
+    my $result = select_json( ['name'], 'customer', "WHERE name='$name' AND password='$password'" );
+    $self->render(text => $result, format => 'json');
+};
+
 app->start;

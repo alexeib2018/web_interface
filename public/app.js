@@ -5,6 +5,8 @@ var app = new Vue({
       login: 0,
       active: 0,
       index: '',
+      username: 'test',
+      password: 'test123',
       days: { 0: 'Sunday',
               1: 'Monday',
               2: 'Tuesday',
@@ -113,9 +115,20 @@ var app = new Vue({
       }
     },
     proc_login: function() {
-      this.login = 1
-      this.active = 1
-      this.index = ''
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      axios.post('/api/login', params)
+           .then(function(data) {
+                  try {
+                    if (data.data[0].name==self.username) {
+                        self.login = 1
+                        self.active = 1
+                        self.index = ''
+                    }
+                  } catch {}
+              })
     },
     proc_logout: function() {
       this.login = 0

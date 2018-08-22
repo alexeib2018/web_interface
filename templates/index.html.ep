@@ -7,13 +7,13 @@
 	<div class="row" style="margin-top: 100px">
 		<div class="col-1">&nbsp;</div>
 		<div class="col-3" style="text-align:right">Login</div>
-		<div class="col-3"><input type="text"></div>
+		<div class="col-3"><input type="text" v-model='username'></div>
 		<div class="col-5">&nbsp;</div>
 	</div>
 	<div class="row">
 		<div class="col-1">&nbsp;</div>
 		<div class="col-3" style="text-align:right">Password</div>
-		<div class="col-3"><input type="password"></div>
+		<div class="col-3"><input type="password" v-model='password'></div>
 		<div class="col-5">&nbsp;</div>
 	</div>
 	<div class="row">
