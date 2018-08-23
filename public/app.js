@@ -17,8 +17,8 @@ var app = new Vue({
       },
       items: {},
       locations: {},
-      data: [
-        { day: 1, location: 1, item: 1, qte:  1 },
+      orders: [
+        /* { day: 1, location: 1, item: 1, qte:  1 },
         { day: 2, location: 2, item: 2, qte:  2 },
         { day: 3, location: 3, item: 3, qte:  3 },
         { day: 4, location: 1, item: 4, qte:  4 },
@@ -45,12 +45,14 @@ var app = new Vue({
         { day: 4, location: 2, item: 4, qte: 25 },
         { day: 5, location: 3, item: 1, qte: 26 },
         { day: 6, location: 1, item: 2, qte: 27 },
-        { day: 0, location: 2, item: 3, qte: 28 },
+        { day: 0, location: 2, item: 3, qte: 28 }, */
       ],
       table: [],
-      index_table: [ { item: 'Item 1', qte: 11 },
-                     { item: 'Item 2', qte: 22 },
-                     { item: 'Item 3', qte: 33 }, ]
+      index_table: [],
+      new_day: 0,
+      new_location: 0,
+      new_item: 0,
+      new_qte: 0
     }
   },
   methods: {
@@ -67,11 +69,13 @@ var app = new Vue({
       }
       this.table = []
       for( var i in this.days ) {
-        if (table[ i ] === undefined) {
-          this.table = []
+        if (table[ i ] !== undefined) {
+          this.table.push( { day: i,
+                             location: table[ i ] } )
+        } else {
+          this.table.push( { day: i,
+                             location: [] } )
         }
-        this.table.push( { day: i,
-                           location: table[ i ] } )
       }
     },
     table_by_location: function() {
@@ -156,6 +160,13 @@ var app = new Vue({
       this.login = 0
       this.active = 0
       this.index = ''
+    },
+    create_item: function() {
+      this.new_qte = 0
+      $('#addItemModal').modal('show')
+    },
+    save_item: function() {
+      $('#addItemModal').modal('hide')      
     }
   },
   watch: {
