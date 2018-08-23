@@ -178,9 +178,44 @@ sub standing_order_delete_item {
 	return 1;
 }
 
-sub get_customer_items {
+sub create_location {
 	my $customer_id = shift;
+	my $location = shift;
 
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "SELECT id 
+	               FROM locations
+	              WHERE customer_id='$customer_id' AND
+	                    location='$location'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $location_id = 0;
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$location_id = $array[0];
+	}
+	$sth->finish();
+
+	if ($location_id==0) {
+		$query = "INSERT INTO locations (location, customer_id)
+		               VALUES ('$location','$customer_id')";
+		$rv = $dbh->do($query);
+		if (!defined $rv) {
+		  print "Error in request: " . $dbh->errstr . "\n";
+		  exit(0);
+		}
+	}
+
+	$dbh->disconnect();
+	return 1;
 }
 
 
@@ -272,6 +307,26 @@ post '/api/order_delete_item' => sub {
 	}
 
 	if (standing_order_delete_item($customer_id, $item, $day, $location)==0) {
+		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	}
+
+	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+};
+
+
+post '/api/create_location' => sub {
+	my $self = shift;
+	my $name = $self->param('name');
+	my $password = $self->param('password');
+	my $location = $self->param('location');
+
+	my $customer_id = get_customer_id($name, $password);
+	if ($customer_id==0) {
+		$self->render(text => '{"customer_id":"0"}', format => 'json');
+		return;
+	}
+
+	if (create_location($customer_id, $location)==0) {
 		return $self->render(text => '{"customer_id":"0"}', format => 'json');
 	}
 

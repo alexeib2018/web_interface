@@ -23,7 +23,8 @@ var app = new Vue({
       new_day: 0,
       new_location: 0,
       new_item: 0,
-      new_qte: 0
+      new_qte: 0,
+      add_location: ''
     }
   },
   methods: {
@@ -153,6 +154,22 @@ var app = new Vue({
     modal_order_save: function() {
       $('#addOrderModal').modal('hide')
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
+    modal_location_show: function() {
+      this.add_location = ''
+      $('#addLocationModal').modal('show')
+    },
+    modal_location_save: function() {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('location', this.add_location);
+      axios.post('/api/create_location', params)
+           .then(function(data) {
+              self.get_data()
+           })
+      $('#addLocationModal').modal('hide')
     },
     order_save: function(day,location,item,qte,active) {
       var self=this
