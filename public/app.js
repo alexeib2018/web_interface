@@ -17,36 +17,7 @@ var app = new Vue({
       },
       items: {},
       locations: {},
-      orders: [
-        /* { day: 1, location: 1, item: 1, qte:  1 },
-        { day: 2, location: 2, item: 2, qte:  2 },
-        { day: 3, location: 3, item: 3, qte:  3 },
-        { day: 4, location: 1, item: 4, qte:  4 },
-        { day: 5, location: 2, item: 1, qte:  5 },
-        { day: 6, location: 3, item: 2, qte:  6 },
-        { day: 0, location: 1, item: 3, qte:  7 },
-        { day: 1, location: 2, item: 4, qte:  8 },
-        { day: 2, location: 3, item: 1, qte:  9 },
-        { day: 3, location: 1, item: 2, qte: 10 },
-        { day: 4, location: 2, item: 3, qte: 11 },
-        { day: 5, location: 3, item: 4, qte: 12 },
-        { day: 6, location: 1, item: 1, qte: 13 },
-        { day: 0, location: 2, item: 2, qte: 14 },
-        { day: 1, location: 1, item: 2, qte: 15 },
-        { day: 2, location: 2, item: 3, qte: 16 },
-        { day: 3, location: 3, item: 4, qte: 17 },
-        { day: 4, location: 1, item: 1, qte: 18 },
-        { day: 5, location: 2, item: 2, qte: 19 },
-        { day: 6, location: 3, item: 3, qte: 20 },
-        { day: 0, location: 1, item: 4, qte: 21 },
-        { day: 1, location: 2, item: 1, qte: 22 },
-        { day: 2, location: 3, item: 2, qte: 23 },
-        { day: 3, location: 1, item: 3, qte: 24 },
-        { day: 4, location: 2, item: 4, qte: 25 },
-        { day: 5, location: 3, item: 1, qte: 26 },
-        { day: 6, location: 1, item: 2, qte: 27 },
-        { day: 0, location: 2, item: 3, qte: 28 }, */
-      ],
+      orders: [],
       table: [],
       index_table: [],
       new_day: 0,
@@ -111,7 +82,8 @@ var app = new Vue({
         for(var i in this.orders) {
           var item = this.orders[i]
           if (item.day==day && item.location==location) {
-            this.index_table.push( { item: this.items[item.item],
+            this.index_table.push( { id: item.item,
+                                     item: this.items[item.item],
                                      qte: item.qte } )
           }
         }
@@ -193,6 +165,19 @@ var app = new Vue({
       params.append('qte', qte);
       params.append('active', active);
       axios.post('/api/order_save', params)
+           .then(function(data) {
+              self.get_data()
+           })
+    },
+    delete_item: function(day,location,item) {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('day', day);
+      params.append('location', location);
+      params.append('item', item);
+      axios.post('/api/order_delete_item', params)
            .then(function(data) {
               self.get_data()
            })
