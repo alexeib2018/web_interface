@@ -58,13 +58,13 @@ var app = new Vue({
   methods: {
     table_by_date: function() {
       var table = {}
-      for(var i in this.data) {
-        var data = this.data[i]
-        if (table[ data.day ] === undefined) {
-          table[ data.day ] = []
+      for(var i in this.orders) {
+        var order = this.orders[i]
+        if (table[ order.day ] === undefined) {
+          table[ order.day ] = []
         }
-        if ( table[ data.day ].indexOf(data.location) == -1 ) {
-          table[ data.day ].push( data.location )
+        if ( table[ order.day ].indexOf(order.location) == -1 ) {
+          table[ order.day ].push( order.location )
         }
       }
       this.table = []
@@ -80,14 +80,14 @@ var app = new Vue({
     },
     table_by_location: function() {
       var table = {}
-      for(var i in this.data) {
-        var data = this.data[i]
-        if (table[ this.locations[ data.location ] ] === undefined) {
-          table[ this.locations[ data.location ] ] = []
+      for(var i in this.orders) {
+        var order = this.orders[i]
+        if (table[ this.locations[ order.location ] ] === undefined) {
+          table[ this.locations[ order.location ] ] = []
         }
-        table[ this.locations[ data.location ] ].push( { item: this.items[ data.item ],
-                                                         qte: data.qte,
-                                                         day: this.days[ data.day ] } )
+        table[ this.locations[ order.location ] ].push( { item: this.items[ order.item ],
+                                                           qte: order.qte,
+                                                           day: this.days[ order.day ] } )
       }
       this.table = []
       for( var location in table ) {
@@ -104,8 +104,8 @@ var app = new Vue({
         day = this.index.substr(0,pos)
         location = this.index.substr(pos+1)
         this.index_table = []
-        for(var i in this.data) {
-          var item = this.data[i]
+        for(var i in this.orders) {
+          var item = this.orders[i]
           if (item.day==day && item.location==location) {
             this.index_table.push( { item: this.items[item.item],
                                      qte: item.qte } )
@@ -133,7 +133,16 @@ var app = new Vue({
                     self.locations[ locations[location].id ] = locations[location].location
                   }
 
+                  self.orders = data.data.orders
+
                   console.log('Data loaded ok')
+                  if (self.active==1) {
+                    self.table_by_date()
+                  }
+                  if (self.active==2) {
+                    self.table_by_location()
+                  }
+                  self.index_table_collect()
                 } else {
                   self.proc_logout()
                 }
@@ -181,7 +190,7 @@ var app = new Vue({
       params.append('active', active);
       axios.post('/api/order_save', params)
            .then(function(data) {
-              console.log(data)
+              self.get_data()
            })
     }
   },

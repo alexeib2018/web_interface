@@ -34,7 +34,7 @@
 	  <b>{{ days[row.day] }}</b>
       <button type="button" 
       		  @click="new_day=row.day; modal_order_show()"
-              class="btn btn-success btn-sm">New Item</button>
+              class="btn btn-success btn-sm">New Order</button>
 	  <table class="table table-striped table-sm">
 		<tbody>
 		  <tr v-for="location in row.location"
@@ -58,8 +58,7 @@
 		    </td>
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+row.day+'_'+location">
-			      	<button type="button" class="btn btn-success btn-sm">New Item</button>
-			    	<button type="button" class="btn btn-warning btn-sm">Copy</button>
+			    	<button type="button" class="btn btn-warning btn-sm">Pause</button>
 			    </div>
 		    </td>
 		  </tr>
