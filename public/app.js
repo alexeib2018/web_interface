@@ -15,13 +15,8 @@ var app = new Vue({
               5: 'Friday',
               6: 'Saturday'
       },
-      locations: { 1: 'Dallas',
-                   2: 'New York',
-                   3: 'Chicago' },
-      items: { 1: 'Item 1',
-               2: 'Item 2',
-               3: 'Item 3',
-               4: 'Item 4' },
+      items: {},
+      locations: {},
       data: [
         { day: 1, location: 1, item: 1, qte:  1 },
         { day: 2, location: 2, item: 2, qte:  2 },
@@ -123,10 +118,17 @@ var app = new Vue({
            .then(function(data) {
                 if (data.data.customer_id!=0) {
                   var items = data.data.items
-                    self.items = {}
+                  self.items = {}
                   for (var item in items) {
                     self.items[ items[item].id ] = items[item].description
                   }
+
+                  var locations = data.data.locations
+                  self.locations = {}
+                  for (var location in locations) {
+                    self.locations[ locations[location].id ] = locations[location].location
+                  }
+
                   console.log('Data loaded ok')
                 } else {
                   self.proc_logout()

@@ -95,9 +95,6 @@
         <td>
         	{{ location }}
         </td>
-        <td>
-        	<button type="button" class="btn btn-danger btn-sm">Delete</button>
-        </td>
       </tr>
     </tbody>
   </table>

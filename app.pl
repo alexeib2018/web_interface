@@ -116,8 +116,9 @@ post '/api/get_data' => sub {
 		return;
 	}
 	my $items = select_json( ['id','description'], "SELECT items.id, description FROM items JOIN customer_items ON items.id=customer_items.item_id WHERE customer_items.customer_id=$customer_id");
+	my $locations = select_json( ['id','location'], "SELECT id, location FROM locations WHERE customer_id=$customer_id");
 
-	my $result = '{"customer_id":"'.$customer_id.'","items":'.$items.'}';  
+	my $result = '{"customer_id":"'.$customer_id.'","items":'.$items.',"locations":'.$locations.'}';
     $self->render(text => $result, format => 'json');
 };
 
