@@ -82,18 +82,22 @@ var app = new Vue({
       var table = {}
       for(var i in this.orders) {
         var order = this.orders[i]
-        if (table[ this.locations[ order.location ] ] === undefined) {
-          table[ this.locations[ order.location ] ] = []
+        if (table[ order.location ] === undefined) {
+          table[ order.location ] = []
         }
-        table[ this.locations[ order.location ] ].push( { item: this.items[ order.item ],
-                                                           qte: order.qte,
-                                                           day: this.days[ order.day ] } )
+        if ( table[ order.location ].indexOf(order.day) == -1 ) {
+          table[ order.location ].push( order.day )
+        }
       }
       this.table = []
-      for( var location in table ) {
-        var row = table[location]
-        this.table.push( { location: location,
-                           row: row } )
+      for( var i in this.locations ) {
+        if (table[ i ] !== undefined) {
+          this.table.push( { location: i,
+                             days: table[ i ] } )
+        } else {
+          this.table.push( { location: i,
+                             dayss: [] } )
+        }
       }
     },
     index_table_collect: function() {
