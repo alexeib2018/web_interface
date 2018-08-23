@@ -30,6 +30,7 @@ var app = new Vue({
   },
   methods: {
     table_by_date: function() {
+      this.paused = {}
       var table = {}
       for(var i in this.orders) {
         var order = this.orders[i]
@@ -38,6 +39,14 @@ var app = new Vue({
         }
         if ( table[ order.day ].indexOf(order.location) == -1 ) {
           table[ order.day ].push( order.location )
+        }
+
+        var index = '' + order.day + '_' + order.location
+        if (this.paused[index] === undefined) {
+          this.paused[index] = 0
+        }
+        if (order.active == 0) {
+          this.paused[index] = 1
         }
       }
       this.table = []
@@ -52,6 +61,7 @@ var app = new Vue({
       }
     },
     table_by_location: function() {
+      this.paused = {}
       var table = {}
       for(var i in this.orders) {
         var order = this.orders[i]
@@ -60,6 +70,14 @@ var app = new Vue({
         }
         if ( table[ order.location ].indexOf(order.day) == -1 ) {
           table[ order.location ].push( order.day )
+        }
+
+        var index = '' + order.day + '_' + order.location
+        if (this.paused[index] === undefined) {
+          this.paused[index] = 0
+        }
+        if (order.active == 0) {
+          this.paused[index] = 1
         }
       }
       this.table = []
@@ -156,12 +174,20 @@ var app = new Vue({
       $('#addOrderModal').modal('hide')
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
     },
-    pause_order: function(day,location) {
-      this.paused[''+day+'_'+location] = 1
-      this.index_table_collect()
-    },
-    activate_order: function(day, location) {
-      this.paused[''+day+'_'+location] = 0
+    activate_order: function(day, location, active) {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('day', day);
+      params.append('location', location);
+      params.append('active', active);
+      axios.post('/api/activate_order', params)
+           .then(function(data) {
+              self.get_data()
+           })
+      $('#addLocationModal').modal('hide')
+      this.paused[''+day+'_'+location] = !active
       this.index_table_collect()
     },
     modal_location_show: function() {

@@ -178,6 +178,31 @@ sub standing_order_delete_item {
 	return 1;
 }
 
+sub standing_order_activate {
+	my $customer_id = shift;
+	my $day_of_week = shift;
+	my $location_id = shift;
+	my $active = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "UPDATE standing_orders
+	                SET active='$active'
+	              WHERE customer_id='$customer_id' AND
+	                    day_of_week='$day_of_week' AND
+	                    location_id='$location_id'";
+
+	my $rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
 sub create_location {
 	my $customer_id = shift;
 	my $location = shift;
@@ -313,7 +338,6 @@ post '/api/order_delete_item' => sub {
 	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
 };
 
-
 post '/api/create_location' => sub {
 	my $self = shift;
 	my $name = $self->param('name');
@@ -327,6 +351,27 @@ post '/api/create_location' => sub {
 	}
 
 	if (create_location($customer_id, $location)==0) {
+		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	}
+
+	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+};
+
+post '/api/activate_order' => sub {
+	my $self = shift;
+	my $name = $self->param('name');
+	my $password = $self->param('password');
+	my $day = $self->param('day');
+	my $location = $self->param('location');
+	my $active = $self->param('active');
+
+	my $customer_id = get_customer_id($name, $password);
+	if ($customer_id==0) {
+		$self->render(text => '{"customer_id":"0"}', format => 'json');
+		return;
+	}
+
+	if (standing_order_activate($customer_id, $day, $location, $active)==0) {
 		return $self->render(text => '{"customer_id":"0"}', format => 'json');
 	}
 
