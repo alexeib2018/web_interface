@@ -41,3 +41,15 @@ class Location(models.Model):
 
 	class Meta:
 		db_table = 'locations'
+
+
+class StandingOrder(models.Model):
+	customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+	day_of_week = models.IntegerField(default=0)
+	location = models.ForeignKey(Location, on_delete=models.CASCADE)
+	item = models.ForeignKey(Item, on_delete=models.CASCADE)
+	qte = models.CharField(max_length=200, default='')
+	active = models.IntegerField(default=1)
+
+	class Meta:
+		db_table = 'standing_orders'
