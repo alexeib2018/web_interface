@@ -114,6 +114,25 @@ var app = new Vue({
         }
       }
     },
+    get_data: function() {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      axios.post('/api/get_data', params)
+           .then(function(data) {
+                if (data.data.customer_id!=0) {
+                  var items = data.data.items
+                    self.items = {}
+                  for (var item in items) {
+                    self.items[ items[item].id ] = items[item].description
+                  }
+                  console.log('Data loaded ok')
+                } else {
+                  self.proc_logout()
+                }
+           })
+    },
     proc_login: function() {
       var self=this
       var params = new URLSearchParams();
@@ -122,10 +141,11 @@ var app = new Vue({
       axios.post('/api/login', params)
            .then(function(data) {
                   try {
-                    if (data.data[0].name==self.username) {
+                    if (data.data.customer_id!=0) {
                         self.login = 1
                         self.active = 1
                         self.index = ''
+                        self.get_data()
                     }
                   } catch {}
               })
