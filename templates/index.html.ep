@@ -62,6 +62,9 @@
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+row.day+'_'+location">
 			    	<button type="button"
+			    		    @click="modal_copy_show(row.day, location)"
+			    	        class="btn btn-warning btn-sm">Copy</button>
+			    	<button type="button"
 			    		    @click="activate_order(row.day, location, 0)"
 			    		    v-if="!paused[''+row.day+'_'+location]"
 			    	        class="btn btn-warning btn-sm">Pause</button>
@@ -111,6 +114,9 @@
 		    </td>
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+day+'_'+row.location">
+			    	<button type="button"
+			    		    @click="modal_copy_show(day, row.location)"
+			    	        class="btn btn-warning btn-sm">Copy</button>
 			    	<button type="button"
 			    		    @click="activate_order(day, row.location, 0)"
 			    		    v-if="!paused[''+day+'_'+row.location]"
@@ -200,6 +206,48 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" 
         		@click="modal_location_save()"
+                class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="copyOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Copy Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="margin:10px">
+       	  <select class="form-control" v-model="copy_day_to">
+            <option v-for="(day,key) in days" v-bind:value="key">{{ day }}</option>
+          </select>
+        </div>
+        <div style="margin:10px">
+       	  <select class="form-control" v-model="copy_location_to">
+            <option v-for="(location,key) in locations" v-bind:value="key">{{ location }}</option>
+          </select>
+        </div>
+        <div style="margin:10px">
+        	<p>
+        		Order details:
+        	</p>
+		    <table  class="table table-striped table-sm" style="width:100%">
+	    		<tr v-for="item in index_table">
+	    			<td>{{ item.item }}</td>
+	    			<td>{{ item.qte }}</td>
+	    		</tr>
+	    	</table>
+	    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" 
+        		@click="modal_copy_save()"
                 class="btn btn-primary">Save</button>
       </div>
     </div>

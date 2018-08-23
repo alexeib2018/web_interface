@@ -153,6 +153,44 @@ sub standing_order_create_or_update {
 	return 1;
 }
 
+sub standing_order_copy {
+	my $customer_id = shift;
+	my $day_of_week_from = shift;
+	my $location_id_from = shift;
+	my $day_of_week_to = shift;
+	my $location_id_to = shift;
+
+	my $query = "SELECT item_id,qte,active
+	               FROM standing_orders
+	              WHERE customer_id='$customer_id' AND
+	                    day_of_week='$day_of_week_from' AND
+	                    location_id='$location_id_from'";
+
+	# print $query;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	while (my @array = $sth->fetchrow_array()) {
+		my $item_id = $array[0];
+		my $qte = $array[1];
+		my $active = $array[2];
+		standing_order_create_or_update($customer_id, $day_of_week_to, $location_id_to, $item_id, $qte, $active);
+	}
+
+	$sth->finish();
+	$dbh->disconnect();
+
+	return 1;
+}
+
 sub standing_order_delete_item {
 	my $customer_id = shift;
 	my $item_id = shift;
@@ -372,6 +410,28 @@ post '/api/activate_order' => sub {
 	}
 
 	if (standing_order_activate($customer_id, $day, $location, $active)==0) {
+		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	}
+
+	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+};
+
+post '/api/copy_order' => sub {
+	my $self = shift;
+	my $name = $self->param('name');
+	my $password = $self->param('password');
+	my $day_from = $self->param('day_from');
+	my $location_from = $self->param('location_from');
+	my $day_to = $self->param('day_to');
+	my $location_to = $self->param('location_to');
+
+	my $customer_id = get_customer_id($name, $password);
+	if ($customer_id==0) {
+		$self->render(text => '{"customer_id":"0"}', format => 'json');
+		return;
+	}
+
+	if (standing_order_copy($customer_id, $day_from, $location_from, $day_to, $location_to)==0) {
 		return $self->render(text => '{"customer_id":"0"}', format => 'json');
 	}
 

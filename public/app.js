@@ -25,7 +25,11 @@ var app = new Vue({
       new_item: 0,
       new_qte: 0,
       add_location: '',
-      paused: {}
+      paused: {},
+      copy_day_from: 0,
+      copy_day_to: 0,
+      copy_location_from: 0,
+      copy_location_to: 0
     }
   },
   methods: {
@@ -87,7 +91,7 @@ var app = new Vue({
                              days: table[ i ] } )
         } else {
           this.table.push( { location: i,
-                             dayss: [] } )
+                             days: [] } )
         }
       }
     },
@@ -173,6 +177,28 @@ var app = new Vue({
     modal_order_save: function() {
       $('#addOrderModal').modal('hide')
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
+    modal_copy_show: function(day,location) {
+      this.copy_day_from = day;
+      this.copy_day_to = day;
+      this.copy_location_from = location;
+      this.copy_location_to = location;
+      $('#copyOrderModal').modal('show')
+    },
+    modal_copy_save: function() {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('day_from', this.copy_day_from);
+      params.append('location_from', this.copy_location_from);
+      params.append('day_to', this.copy_day_to);
+      params.append('location_to', this.copy_location_to);
+      axios.post('/api/copy_order', params)
+           .then(function(data) {
+              self.get_data()
+           })
+      $('#copyOrderModal').modal('hide')
     },
     activate_order: function(day, location, active) {
       var self=this
