@@ -24,7 +24,8 @@ var app = new Vue({
       new_location: 0,
       new_item: 0,
       new_qte: 0,
-      add_location: ''
+      add_location: '',
+      paused: {}
     }
   },
   methods: {
@@ -154,6 +155,14 @@ var app = new Vue({
     modal_order_save: function() {
       $('#addOrderModal').modal('hide')
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
+    pause_order: function(day,location) {
+      this.paused[''+day+'_'+location] = 1
+      this.index_table_collect()
+    },
+    activate_order: function(day, location) {
+      this.paused[''+day+'_'+location] = 0
+      this.index_table_collect()
     },
     modal_location_show: function() {
       this.add_location = ''

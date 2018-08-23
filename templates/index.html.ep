@@ -39,7 +39,8 @@
 		<tbody>
 		  <tr v-for="location in row.location"
 		      @click="index=''+row.day+'_'+location"
-		      style="cursor: pointer">
+		      style="cursor: pointer"
+		      v-bind:style="{ opacity: (paused[''+row.day+'_'+location])?0.3:1 }">
 		    <td style="width: 25%">
 		    	<span v-if="index==''+row.day+'_'+location">[&ndash;]</span>
 		    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
@@ -60,7 +61,14 @@
 		    </td>
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+row.day+'_'+location">
-			    	<button type="button" class="btn btn-warning btn-sm">Pause</button>
+			    	<button type="button"
+			    		    @click="pause_order(row.day, location)"
+			    		    v-if="!paused[''+row.day+'_'+location]"
+			    	        class="btn btn-warning btn-sm">Pause</button>
+			    	<button type="button"
+			    		    @click="activate_order(row.day, location)"
+			    		    v-if="paused[''+row.day+'_'+location]"
+			    	        class="btn btn-warning btn-sm">Activate</button>
 			    </div>
 		    </td>
 		  </tr>
@@ -81,6 +89,7 @@
 		<tbody>
 		  <tr v-for="day in row.days"
 		      @click="index=''+day+'_'+row.location"
+		      v-bind:style="{ opacity: (paused[''+day+'_'+row.location])?0.3:1 }">
 		      style="cursor: pointer">
 		    <td style="width: 25%">
 		    	<span v-if="index==''+day+'_'+row.location">[&ndash;]</span>
@@ -102,7 +111,14 @@
 		    </td>
 		    <td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+day+'_'+row.location">
-			    	<button type="button" class="btn btn-warning btn-sm">Pause</button>
+			    	<button type="button"
+			    		    @click="pause_order(day, row.location)"
+			    		    v-if="!paused[''+day+'_'+row.location]"
+			    	        class="btn btn-warning btn-sm">Pause</button>
+			    	<button type="button"
+			    		    @click="activate_order(day, row.location)"
+			    		    v-if="paused[''+day+'_'+row.location]"
+			    	        class="btn btn-warning btn-sm">Activate</button>
 			    </div>
 		    </td>
 		  </tr>
