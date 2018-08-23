@@ -30,3 +30,14 @@ class CustomerItem(models.Model):
 
 	class Meta:
 		db_table = 'customer_items'
+
+
+class Location(models.Model):
+	customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+	location = models.CharField(max_length=200, default='')
+
+	def __str__(self):
+		return self.location
+
+	class Meta:
+		db_table = 'locations'
