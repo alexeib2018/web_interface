@@ -161,12 +161,28 @@ var app = new Vue({
       this.active = 0
       this.index = ''
     },
-    create_item: function() {
+    modal_order_show: function() {
       this.new_qte = 0
-      $('#addItemModal').modal('show')
+      $('#addOrderModal').modal('show')
     },
-    save_item: function() {
-      $('#addItemModal').modal('hide')      
+    modal_order_save: function() {
+      $('#addOrderModal').modal('hide')
+      this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
+    order_save: function(day,location,item,qte,active) {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('day', day);
+      params.append('location', location);
+      params.append('item', item);
+      params.append('qte', qte);
+      params.append('active', active);
+      axios.post('/api/order_save', params)
+           .then(function(data) {
+              console.log(data)
+           })
     }
   },
   watch: {

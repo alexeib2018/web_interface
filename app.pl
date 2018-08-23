@@ -74,6 +74,85 @@ sub get_customer_id {
 	return $customer_id;
 }
 
+
+sub get_location_id {
+	my $id = shift;
+	my $customer_id = shift;
+	my $query = "SELECT id FROM locations WHERE id='$id' AND customer_id='$customer_id'";
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $location_id = 0;
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$location_id = $array[0];
+	}
+
+	$sth->finish();
+	$dbh->disconnect();
+
+	return $location_id;
+}
+
+sub standing_order_create_or_update {
+	my $customer_id = shift;
+	my $day_of_week = shift;
+	my $location_id = shift;
+	my $item_id = shift;
+	my $qte = shift;
+	my $active = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "SELECT id 
+	               FROM standing_orders
+	              WHERE customer_id='$customer_id' AND
+	                    day_of_week='$day_of_week' AND
+	                    location_id='$location_id' AND
+	                    item_id='$item_id'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $order_id = 0;
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$order_id = $array[0];
+	}
+	$sth->finish();
+
+	if ($order_id==0) {
+		$query = "INSERT INTO standing_orders (customer_id, day_of_week, location_id, item_id, qte, active)
+		               VALUES ('$customer_id','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
+	} else {
+		$query = "UPDATE standing_orders
+		             SET qte='$qte', active='$active'
+		           WHERE id='$order_id'";
+	}
+
+	$rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
 sub get_customer_items {
 	my $customer_id = shift;
 
@@ -120,6 +199,33 @@ post '/api/get_data' => sub {
 
 	my $result = '{"customer_id":"'.$customer_id.'","items":'.$items.',"locations":'.$locations.'}';
     $self->render(text => $result, format => 'json');
+};
+
+post '/api/order_save' => sub {
+	my $self = shift;
+	my $name = $self->param('name');
+	my $password = $self->param('password');
+	my $day = $self->param('day');
+	my $location = $self->param('location');
+	my $item = $self->param('item');
+	my $qte = $self->param('qte');
+	my $active = $self->param('active');
+
+	my $customer_id = get_customer_id($name, $password);
+	if ($customer_id==0) {
+		$self->render(text => '{"customer_id":"0"}', format => 'json');
+		return;
+	}
+
+	if (get_location_id($location, $customer_id)==0) {
+		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	}
+
+	if (standing_order_create_or_update($customer_id, $day, $location, $item, $qte, $active)==0) {
+		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	}
+
+	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
 };
 
 app->start;
