@@ -20,6 +20,11 @@ var app = new Vue({
       orders: [],
       table: [],
       index_table: [],
+      new_editfl: 0,
+      new_day_saved: 0,
+      new_location_saved: 0,
+      new_item_saved: 0,
+      new_qte_saved: 0,
       new_day: 0,
       new_location: 0,
       new_item: 0,
@@ -171,12 +176,43 @@ var app = new Vue({
       this.index = ''
     },
     modal_order_show: function() {
+      this.new_editfl = 0
       this.new_qte = 0
+      $('#addOrderModal').modal('show')
+    },
+    modal_order_edit: function(day, location, item, qte) {
+      this.new_editfl = 1
+      this.new_day_saved = this.new_day = day
+      this.new_location_saved = this.new_location = location
+      this.new_item_saved = this.new_item = item
+      this.new_qte_saved = this.new_qte = qte
       $('#addOrderModal').modal('show')
     },
     modal_order_save: function() {
       $('#addOrderModal').modal('hide')
-      this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+      if (this.new_editfl) {
+        if (this.new_day != this.new_day_saved ||
+            this.new_location != this.new_location_saved ||
+            this.new_item != this.new_item_saved) {
+          var self=this
+          var params = new URLSearchParams();
+          params.append('name', this.username);
+          params.append('password', this.password);
+          params.append('day', this.new_day_saved);
+          params.append('location', this.new_location_saved);
+          params.append('item', this.new_item_saved);
+          axios.post('/api/order_delete_item', params)
+               .then(function(data) {
+                  self.order_save(self.new_day, self.new_location, self.new_item, self.new_qte, 1)
+               })
+        } else {
+          if (this.new_qte != this.new_qte_saved) {
+            this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+          }
+        }
+      } else {
+        this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+      }
     },
     modal_order_copy: function() {
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
