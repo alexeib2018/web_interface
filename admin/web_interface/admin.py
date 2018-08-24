@@ -6,7 +6,9 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-	list_display = ('description',)
+	list_display = ['id', 'description']
+	list_display_links = ['id', 'description']
+	fields = ['id', 'description']
 
 
 class CustomerItemAdmin(admin.ModelAdmin):

@@ -15,6 +15,7 @@ class Customer(models.Model):
 
 
 class Item(models.Model):
+	id = models.IntegerField(primary_key=True, verbose_name="Item number")
 	description = models.CharField(max_length=200, default='')
 
 	def __str__(self):
