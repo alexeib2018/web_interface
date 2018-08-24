@@ -41,12 +41,24 @@
 		      @click="index=''+row.day+'_'+location"
 		      style="cursor: pointer"
 		      v-bind:style="{ opacity: (paused[''+row.day+'_'+location])?0.3:1 }">
-		    <td style="width: 25%">
-		    	<span v-if="index==''+row.day+'_'+location">[&ndash;]</span>
-		    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
- 	    	    {{ locations[location] }}
+		    <td style="width: 30%">
+		    	<p style="margin:0px">
+			    	<span v-if="index==''+row.day+'_'+location">[&ndash;]</span>
+			    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
+	 	    	    {{ locations[location] }}
+	 	    	</p>
+	 	    	<p v-if="index==''+row.day+'_'+location">
+			    	<button type="button"
+			    		    @click="activate_order(row.day, location, 0)"
+			    		    v-if="!paused[''+row.day+'_'+location]"
+			    	        class="btn btn-warning btn-sm">&nbsp;Pause&nbsp;</button>
+			    	<button type="button"
+			    		    @click="activate_order(row.day, location, 1)"
+			    		    v-if="paused[''+row.day+'_'+location]"
+			    	        class="btn btn-warning btn-sm">Activate</button>
+	 	    	</p>
 		    </td>
-		    <td style="width: 55%">
+		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+row.day+'_'+location">
 		    		<tr v-for="item in index_table">
 		    			<td style="width:10%">{{ item.id }}</td>
@@ -60,21 +72,13 @@
 		    		</tr>
 		    	</table>	
 		    </td>
-		    <td style="width: 20%; text-align:right">
+		    <!-- td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+row.day+'_'+location">
 			    	<button type="button"
 			    		    @click="modal_copy_show(row.day, location)"
 			    	        class="btn btn-warning btn-sm">Copy</button>
-			    	<button type="button"
-			    		    @click="activate_order(row.day, location, 0)"
-			    		    v-if="!paused[''+row.day+'_'+location]"
-			    	        class="btn btn-warning btn-sm">Pause</button>
-			    	<button type="button"
-			    		    @click="activate_order(row.day, location, 1)"
-			    		    v-if="paused[''+row.day+'_'+location]"
-			    	        class="btn btn-warning btn-sm">Activate</button>
 			    </div>
-		    </td>
+		    </td -->
 		  </tr>
 		</tbody>
 	  </table>
@@ -95,12 +99,24 @@
 		      @click="index=''+day+'_'+row.location"
 		      v-bind:style="{ opacity: (paused[''+day+'_'+row.location])?0.3:1 }"
 		      style="cursor: pointer">
-		    <td style="width: 25%">
-		    	<span v-if="index==''+day+'_'+row.location">[&ndash;]</span>
-		    	<span v-if="index!=''+day+'_'+row.location">[+]</span>
- 	    	    {{ days[day] }}
+		    <td style="width: 30%">
+		    	<p style="margin:0px">
+			    	<span v-if="index==''+day+'_'+row.location">[&ndash;]</span>
+			    	<span v-if="index!=''+day+'_'+row.location">[+]</span>
+	 	    	    {{ days[day] }}
+	 	    	</p>
+	 	    	<p v-if="index==''+day+'_'+row.location">
+			    	<button type="button"
+			    		    @click="activate_order(day, row.location, 0)"
+			    		    v-if="!paused[''+day+'_'+row.location]"
+			    	        class="btn btn-warning btn-sm">Pause</button>
+			    	<button type="button"
+			    		    @click="activate_order(day, row.location, 1)"
+			    		    v-if="paused[''+day+'_'+row.location]"
+			    	        class="btn btn-warning btn-sm">Activate</button>
+	 	    	</p>
 		    </td>
-		    <td style="width: 55%">
+		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+day+'_'+row.location">
 		    		<tr v-for="item in index_table">
 		    			<td style="width:10%">{{ item.id }}</td>
@@ -114,21 +130,13 @@
 		    		</tr>
 		    	</table>	
 		    </td>
-		    <td style="width: 20%; text-align:right">
+		    <!-- td style="width: 20%; text-align:right">
 		    	<div v-if="index==''+day+'_'+row.location">
 			    	<button type="button"
 			    		    @click="modal_copy_show(day, row.location)"
 			    	        class="btn btn-warning btn-sm">Copy</button>
-			    	<button type="button"
-			    		    @click="activate_order(day, row.location, 0)"
-			    		    v-if="!paused[''+day+'_'+row.location]"
-			    	        class="btn btn-warning btn-sm">Pause</button>
-			    	<button type="button"
-			    		    @click="activate_order(day, row.location, 1)"
-			    		    v-if="paused[''+day+'_'+row.location]"
-			    	        class="btn btn-warning btn-sm">Activate</button>
 			    </div>
-		    </td>
+		    </td -->
 		  </tr>
 		</tbody>
 	  </table>
@@ -172,11 +180,11 @@
           </select>
         </div>
         <div style="margin:10px">
-        	<span>Item number:</span>
         	<input type="number" 
         	       v-model='new_item' 
         	       class="form-control"
         	       style="width:30%; display:inline">
+        	<span><- Item number</span>
         </div>
         <div style="margin:10px">
        	  <select class="form-control" v-model="new_item">
@@ -184,11 +192,18 @@
           </select>
         </div>
         <div style="margin:10px">
-        	<input type="number" v-model='new_qte' class="form-control">
+        	<input type="number" 
+        	       v-model='new_qte' 
+        	       class="form-control"
+        	       style="width:30%; display:inline">
+        	<span><- Quantity</span>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" 
+        		@click="modal_order_copy()"
+                class="btn btn-warning">Copy</button>
         <button type="button" 
         		@click="modal_order_save()"
                 class="btn btn-primary">Save</button>

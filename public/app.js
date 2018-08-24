@@ -178,6 +178,9 @@ var app = new Vue({
       $('#addOrderModal').modal('hide')
       this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
     },
+    modal_order_copy: function() {
+      this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
     modal_copy_show: function(day,location) {
       this.copy_day_from = day;
       this.copy_day_to = day;
