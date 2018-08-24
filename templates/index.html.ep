@@ -170,6 +170,13 @@
           </select>
         </div>
         <div style="margin:10px">
+        	<span>Item number:</span>
+        	<input type="number" 
+        	       v-model='new_item' 
+        	       class="form-control"
+        	       style="width:30%; display:inline">
+        </div>
+        <div style="margin:10px">
        	  <select class="form-control" v-model="new_item">
             <option v-for="(item,key) in items" v-bind:value="key">{{ item }}</option>
           </select>
