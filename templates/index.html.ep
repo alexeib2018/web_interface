@@ -149,16 +149,22 @@
 <div v-if="active==3">
   <table class="table table-striped table-sm">
     <tbody>
-      <tr v-for="location in locations">
-        <td>
+      <tr v-for="(location,key) in locations">
+        <td @click="set_single_location(key)"
+            style="cursor:pointer">
         	{{ location }}
         </td>
       </tr>
     </tbody>
   </table>
   <button type="button"
+  		  v-if="!single_location"
   		  @click="modal_location_show()"
           class="btn btn-success btn-sm">New Location</button>
+  <button type="button"
+  		  v-if="single_location"
+  		  @click="set_single_location(0)"
+          class="btn btn-success btn-sm">Show all locations</button>
 </div>
 
 <div class="modal fade" id="addOrderModal" tabindex="-1" role="dialog" aria-hidden="true">

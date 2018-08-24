@@ -34,7 +34,8 @@ var app = new Vue({
       copy_day_from: 0,
       copy_day_to: 0,
       copy_location_from: 0,
-      copy_location_to: 0
+      copy_location_to: 0,
+      single_location: 0
     }
   },
   methods: {
@@ -135,10 +136,27 @@ var app = new Vue({
                   var locations = data.data.locations
                   self.locations = {}
                   for (var location in locations) {
-                    self.locations[ locations[location].id ] = locations[location].location
+                    if (self.single_location) {
+                      if (self.single_location == locations[location].id) {
+                        self.locations[ locations[location].id ] = locations[location].location
+                      }
+                    } else {
+                      self.locations[ locations[location].id ] = locations[location].location
+                    }
                   }
 
-                  self.orders = data.data.orders
+                  self.orders = []
+                  var orders = data.data.orders
+                  for (var i in orders) {
+                    var order = orders[i]
+                    if (self.single_location) {
+                      if (self.single_location == order.location) {
+                        self.orders.push(order)
+                      }
+                    } else {
+                      self.orders.push(order)
+                    }                    
+                  }
 
                   console.log('Data loaded ok')
                   if (self.active==1) {
@@ -298,6 +316,10 @@ var app = new Vue({
            .then(function(data) {
               self.get_data()
            })
+    },
+    set_single_location: function(location) {
+      this.single_location = location
+      this.get_data()
     }
   },
   watch: {
