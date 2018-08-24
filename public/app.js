@@ -162,7 +162,7 @@ var app = new Vue({
                         self.index = ''
                         self.get_data()
                     }
-                  } catch {}
+                  } catch(e) {}
               })
     },
     proc_logout: function() {
