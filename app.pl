@@ -2,11 +2,11 @@
 use Mojolicious::Lite;
 use DBI;
 
-my $dbhost = "ec2-54-235-160-57.compute-1.amazonaws.com";
+my $dbhost = "ec2-54-83-51-78.compute-1.amazonaws.com";
 my $dbport = "5432";
-my $dbname = "d1kbiva5h13qal";
-my $username = "ucxzubqrwjbhiy";
-my $password = "08e5f16ea2cc3bbb976949d48c513bcdc39dd37726a17eadf363a81baf5b79fb";
+my $dbname = "db9ptvci6bt8cc";
+my $username = "sjypzttvwajipn";
+my $password = "ec2c4d06d5d65d1ef826d5488c3cd885609826bdca1ee1359996ca99895288b9";
 my $dboptions = "-e";
 my $dbtty = "ansi";
 
@@ -50,7 +50,7 @@ sub select_json {
 sub get_customer_id {
 	my $name = shift;
 	my $pass = shift;
-	my $query = "SELECT id FROM customer WHERE name='$name' AND password='$pass' AND active=1";
+	my $query = "SELECT account FROM logins WHERE account='$name' AND password='$pass' AND active=true";
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
@@ -90,7 +90,7 @@ sub get_location_id {
 	  exit(0);
 	}
 
-	my $location_id = 0;
+	my $location_id = '0';
 	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
 		$location_id = $array[0];
@@ -313,7 +313,7 @@ post '/api/get_data' => sub {
 	my $password = $self->param('password');
 
 	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
+	if ($customer_id eq '0') {
 		$self->render(text => '{"customer_id":"0"}', format => 'json');
 		return;
 	}
