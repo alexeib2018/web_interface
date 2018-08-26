@@ -126,7 +126,7 @@ var app = new Vue({
       params.append('password', this.password);
       axios.post('/api/get_data', params)
            .then(function(data) {
-                if (data.data.customer_id!=0) {
+                if (data.data.account!=0) {
                   var items = data.data.items
                   self.items = {}
                   for (var item in items) {
@@ -179,7 +179,7 @@ var app = new Vue({
       axios.post('/api/login', params)
            .then(function(data) {
                   try {
-                    if (data.data.customer_id!=0) {
+                    if (data.data.account!=0) {
                         self.login = 1
                         self.active = 1
                         self.index = ''

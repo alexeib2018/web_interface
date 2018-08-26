@@ -47,7 +47,7 @@ sub select_json {
 	'['.(join ',', @result).']'
 }
 
-sub get_customer_id {
+sub get_account {
 	my $name = shift;
 	my $pass = shift;
 	my $query = "SELECT account FROM logins WHERE account='$name' AND password='$pass' AND active=true";
@@ -62,23 +62,23 @@ sub get_customer_id {
 	  exit(0);
 	}
 
-	my $customer_id = 0;
+	my $account = 0;
 	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
-		$customer_id = $array[0];
+		$account = $array[0];
 	}
 
 	$sth->finish();
 	$dbh->disconnect();
 
-	return $customer_id;
+	return $account;
 }
 
 
 sub get_location_id {
 	my $id = shift;
-	my $customer_id = shift;
-	my $query = "SELECT id FROM locations WHERE id='$id' AND customer_id='$customer_id'";
+	my $account = shift;
+	my $query = "SELECT id FROM locations WHERE id='$id' AND account='$account'";
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
@@ -103,7 +103,7 @@ sub get_location_id {
 }
 
 sub standing_order_create_or_update {
-	my $customer_id = shift;
+	my $account = shift;
 	my $day_of_week = shift;
 	my $location_id = shift;
 	my $item_id = shift;
@@ -115,7 +115,7 @@ sub standing_order_create_or_update {
 
 	my $query = "SELECT id 
 	               FROM standing_orders
-	              WHERE customer_id='$customer_id' AND
+	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week' AND
 	                    location_id='$location_id' AND
 	                    item_id='$item_id'";
@@ -135,8 +135,8 @@ sub standing_order_create_or_update {
 	$sth->finish();
 
 	if ($order_id==0) {
-		$query = "INSERT INTO standing_orders (customer_id, day_of_week, location_id, item_id, qte, active)
-		               VALUES ('$customer_id','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
+		$query = "INSERT INTO standing_orders (account, day_of_week, location_id, item_id, qte, active)
+		               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
 	} else {
 		$query = "UPDATE standing_orders
 		             SET qte='$qte', active='$active'
@@ -154,7 +154,7 @@ sub standing_order_create_or_update {
 }
 
 sub standing_order_copy {
-	my $customer_id = shift;
+	my $account = shift;
 	my $day_of_week_from = shift;
 	my $location_id_from = shift;
 	my $day_of_week_to = shift;
@@ -162,7 +162,7 @@ sub standing_order_copy {
 
 	my $query = "SELECT item_id,qte,active
 	               FROM standing_orders
-	              WHERE customer_id='$customer_id' AND
+	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week_from' AND
 	                    location_id='$location_id_from'";
 
@@ -182,7 +182,7 @@ sub standing_order_copy {
 		my $item_id = $array[0];
 		my $qte = $array[1];
 		my $active = $array[2];
-		standing_order_create_or_update($customer_id, $day_of_week_to, $location_id_to, $item_id, $qte, $active);
+		standing_order_create_or_update($account, $day_of_week_to, $location_id_to, $item_id, $qte, $active);
 	}
 
 	$sth->finish();
@@ -192,7 +192,7 @@ sub standing_order_copy {
 }
 
 sub standing_order_delete_item {
-	my $customer_id = shift;
+	my $account = shift;
 	my $item_id = shift;
 	my $day_of_week = shift;
 	my $location_id = shift;
@@ -201,7 +201,7 @@ sub standing_order_delete_item {
 	        {PrintError => 0});
 
 	my $query = "DELETE FROM standing_orders
-	                WHERE customer_id='$customer_id' AND
+	                WHERE account='$account' AND
 	                      item_id='$item_id' AND
 	                      day_of_week='$day_of_week' AND
 	                      location_id='$location_id'";
@@ -217,7 +217,7 @@ sub standing_order_delete_item {
 }
 
 sub standing_order_activate {
-	my $customer_id = shift;
+	my $account = shift;
 	my $day_of_week = shift;
 	my $location_id = shift;
 	my $active = shift;
@@ -227,7 +227,7 @@ sub standing_order_activate {
 
 	my $query = "UPDATE standing_orders
 	                SET active='$active'
-	              WHERE customer_id='$customer_id' AND
+	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week' AND
 	                    location_id='$location_id'";
 
@@ -242,7 +242,7 @@ sub standing_order_activate {
 }
 
 sub create_location {
-	my $customer_id = shift;
+	my $account = shift;
 	my $location = shift;
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
@@ -250,7 +250,7 @@ sub create_location {
 
 	my $query = "SELECT id 
 	               FROM locations
-	              WHERE customer_id='$customer_id' AND
+	              WHERE account='$account' AND
 	                    location='$location'";
 
 	my $sth = $dbh->prepare($query);
@@ -268,8 +268,8 @@ sub create_location {
 	$sth->finish();
 
 	if ($location_id==0) {
-		$query = "INSERT INTO locations (location, customer_id)
-		               VALUES ('$location','$customer_id')";
+		$query = "INSERT INTO locations (location, account)
+		               VALUES ('$location','$account')";
 		$rv = $dbh->do($query);
 		if (!defined $rv) {
 		  print "Error in request: " . $dbh->errstr . "\n";
@@ -303,8 +303,8 @@ post '/api/login' => sub {
 
     # my $result = select_json( ['name'], 'customer', "WHERE name='$name' AND password='$password'" );
     # $self->render(text => $result, format => 'json');
-	my $customer_id = get_customer_id($name, $password);
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	my $account = get_account($name, $password);
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 post '/api/get_data' => sub {
@@ -312,24 +312,24 @@ post '/api/get_data' => sub {
 	my $name = $self->param('name');
 	my $password = $self->param('password');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id eq '0') {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account eq '0') {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 	my $items = select_json( ['id','description'], "SELECT items.id, description
 	                                                  FROM items
 	                                                  JOIN prices ON items.id=TO_NUMBER(prices.item_no,'9999')
-	                                                           WHERE prices.account='$customer_id'");
+	                                                           WHERE prices.account='$account'");
 	my $locations = select_json( ['id','location'], "SELECT id, location
 	                                                   FROM locations
-	                                                  WHERE account='$customer_id'");
+	                                                  WHERE account='$account'");
 	my $orders = select_json( ['day','location','item','qte','active'],
 							  "SELECT day_of_week,location,item_no,quantity,active
 							     FROM standing_orders
-							    WHERE account='$customer_id'");
+							    WHERE account='$account'");
 
-	my $result = '{"customer_id":"'.$customer_id.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
+	my $result = '{"account":"'.$account.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
     $self->render(text => $result, format => 'json');
 };
 
@@ -343,21 +343,21 @@ post '/api/order_save' => sub {
 	my $qte = $self->param('qte');
 	my $active = $self->param('active');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account==0) {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (get_location_id($location, $customer_id)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (get_location_id($location, $account)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	if (standing_order_create_or_update($customer_id, $day, $location, $item, $qte, $active)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (standing_order_create_or_update($account, $day, $location, $item, $qte, $active)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 post '/api/order_delete_item' => sub {
@@ -368,17 +368,17 @@ post '/api/order_delete_item' => sub {
 	my $day = $self->param('day');
 	my $location = $self->param('location');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account==0) {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_delete_item($customer_id, $item, $day, $location)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (standing_order_delete_item($account, $item, $day, $location)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 post '/api/create_location' => sub {
@@ -387,17 +387,17 @@ post '/api/create_location' => sub {
 	my $password = $self->param('password');
 	my $location = $self->param('location');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account==0) {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (create_location($customer_id, $location)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (create_location($account, $location)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 post '/api/activate_order' => sub {
@@ -408,17 +408,17 @@ post '/api/activate_order' => sub {
 	my $location = $self->param('location');
 	my $active = $self->param('active');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account==0) {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_activate($customer_id, $day, $location, $active)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (standing_order_activate($account, $day, $location, $active)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 post '/api/copy_order' => sub {
@@ -430,17 +430,17 @@ post '/api/copy_order' => sub {
 	my $day_to = $self->param('day_to');
 	my $location_to = $self->param('location_to');
 
-	my $customer_id = get_customer_id($name, $password);
-	if ($customer_id==0) {
-		$self->render(text => '{"customer_id":"0"}', format => 'json');
+	my $account = get_account($name, $password);
+	if ($account==0) {
+		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_copy($customer_id, $day_from, $location_from, $day_to, $location_to)==0) {
-		return $self->render(text => '{"customer_id":"0"}', format => 'json');
+	if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to)==0) {
+		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	$self->render(text => '{"customer_id":"'.$customer_id.'"}', format => 'json');
+	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 app->start;
