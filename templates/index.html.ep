@@ -47,7 +47,12 @@
 			    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
 	 	    	    {{ locations[location] }}
 	 	    	</p>
-	 	    	<p v-if="index==''+row.day+'_'+location">
+	 	    	<p v-if="index==''+row.day+'_'+location" style="display: inline;">
+			    	<button type="button"
+			    		    @click="modal_item_add_show(row.day, location)"
+			    	        class="btn btn-success btn-sm">Add Item</button>
+	 	    	</p>
+	 	    	<p v-if="index==''+row.day+'_'+location" style="display: inline;">
 			    	<button type="button"
 			    		    @click="activate_order(row.day, location, 0)"
 			    		    v-if="!paused[''+row.day+'_'+location]"
@@ -106,7 +111,12 @@
 			    	<span v-if="index!=''+day+'_'+row.location">[+]</span>
 	 	    	    {{ days[day] }}
 	 	    	</p>
-	 	    	<p v-if="index==''+day+'_'+row.location">
+	 	    	<p v-if="index==''+day+'_'+row.location" style="display: inline;">
+			    	<button type="button"
+			    		    @click="modal_item_add_show(day, row.location)"
+			    	        class="btn btn-success btn-sm">Add Item</button>
+	 	    	</p>
+	 	    	<p v-if="index==''+day+'_'+row.location" style="display: inline;">
 			    	<button type="button"
 			    		    @click="activate_order(day, row.location, 0)"
 			    		    v-if="!paused[''+day+'_'+row.location]"
@@ -215,6 +225,52 @@
                 class="btn btn-warning">Copy</button>
         <button type="button" 
         		@click="modal_order_save()"
+                class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" v-if="!new_editfl">Add new Item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="margin:10px">
+       	  {{ days[new_day] }}
+        </div>
+        <div style="margin:10px">
+		  {{ locations[new_location] }}
+        </div>
+        <div style="margin:10px">
+        	<input type="number" 
+        	       v-model='new_item' 
+        	       class="form-control"
+        	       style="width:30%; display:inline">
+        	<span><- Item number</span>
+        </div>
+        <div style="margin:10px">
+       	  <select class="form-control" v-model="new_item">
+            <option v-for="(item,key) in items" v-bind:value="key">{{ item }}</option>
+          </select>
+        </div>
+        <div style="margin:10px">
+        	<input type="number" 
+        	       v-model='new_qte' 
+        	       class="form-control"
+        	       style="width:30%; display:inline">
+        	<span><- Quantity</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" 
+        		@click="modal_item_add_save()"
                 class="btn btn-primary">Save</button>
       </div>
     </div>

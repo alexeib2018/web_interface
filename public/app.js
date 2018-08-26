@@ -209,6 +209,16 @@ var app = new Vue({
       this.active = 0
       this.index = ''
     },
+    modal_item_add_show: function(day, location) {
+      this.new_day = day
+      this.new_location = location
+      this.new_qte = 0
+      $('#addItemModal').modal('show')
+    },
+    modal_item_add_save: function() {
+      $('#addItemModal').modal('hide')
+      this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
+    },
     modal_order_show: function() {
       this.new_editfl = 0
       this.new_qte = 0
