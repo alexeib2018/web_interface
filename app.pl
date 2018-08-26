@@ -118,8 +118,8 @@ sub standing_order_create_or_update {
 	               FROM standing_orders
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week' AND
-	                    location_id='$location_id' AND
-	                    item_id='$item_id'";
+	                    location='$location_id' AND
+	                    item_no='$item_id'";
 
 	my $sth = $dbh->prepare($query);
 	my $rv = $sth->execute();
@@ -136,11 +136,11 @@ sub standing_order_create_or_update {
 	$sth->finish();
 
 	if ($order_id==0) {
-		$query = "INSERT INTO standing_orders (account, day_of_week, location_id, item_id, qte, active)
+		$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active)
 		               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
 	} else {
 		$query = "UPDATE standing_orders
-		             SET qte='$qte', active='$active'
+		             SET quantity='$qte', active='$active'
 		           WHERE id='$order_id'";
 	}
 
@@ -161,11 +161,11 @@ sub standing_order_copy {
 	my $day_of_week_to = shift;
 	my $location_id_to = shift;
 
-	my $query = "SELECT item_id,qte,active
+	my $query = "SELECT item_no,qte,active
 	               FROM standing_orders
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week_from' AND
-	                    location_id='$location_id_from'";
+	                    location='$location_id_from'";
 
 	# print $query;
 
@@ -203,9 +203,9 @@ sub standing_order_delete_item {
 
 	my $query = "DELETE FROM standing_orders
 	                WHERE account='$account' AND
-	                      item_id='$item_id' AND
+	                      item_no='$item_id' AND
 	                      day_of_week='$day_of_week' AND
-	                      location_id='$location_id'";
+	                      location='$location_id'";
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -230,7 +230,7 @@ sub standing_order_activate {
 	                SET active='$active'
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week' AND
-	                    location_id='$location_id'";
+	                    location='$location_id'";
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -345,16 +345,16 @@ post '/api/order_save' => sub {
 	my $active = $self->param('active');
 
 	my $account = get_account($name, $password);
-	if ($account==0) {
+	if ($account eq '0') {
 		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (get_location_id($location, $account)==0) {
+	if (get_location_id($location, $account)  == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
-	if (standing_order_create_or_update($account, $day, $location, $item, $qte, $active)==0) {
+	if (standing_order_create_or_update($account, $day, $location, $item, $qte, $active) == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
@@ -370,12 +370,12 @@ post '/api/order_delete_item' => sub {
 	my $location = $self->param('location');
 
 	my $account = get_account($name, $password);
-	if ($account==0) {
+	if ($account eq '0') {
 		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_delete_item($account, $item, $day, $location)==0) {
+	if (standing_order_delete_item($account, $item, $day, $location) == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
@@ -389,12 +389,12 @@ post '/api/create_location' => sub {
 	my $location = $self->param('location');
 
 	my $account = get_account($name, $password);
-	if ($account==0) {
+	if ($account eq '0') {
 		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (create_location($account, $location)==0) {
+	if (create_location($account, $location) == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
@@ -410,12 +410,12 @@ post '/api/activate_order' => sub {
 	my $active = $self->param('active');
 
 	my $account = get_account($name, $password);
-	if ($account==0) {
+	if ($account eq '0') {
 		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_activate($account, $day, $location, $active)==0) {
+	if (standing_order_activate($account, $day, $location, $active) == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 
@@ -432,12 +432,12 @@ post '/api/copy_order' => sub {
 	my $location_to = $self->param('location_to');
 
 	my $account = get_account($name, $password);
-	if ($account==0) {
+	if ($account eq '0') {
 		$self->render(text => '{"account":"0"}', format => 'json');
 		return;
 	}
 
-	if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to)==0) {
+	if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to) == 0) {
 		return $self->render(text => '{"account":"0"}', format => 'json');
 	}
 

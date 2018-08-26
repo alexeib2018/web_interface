@@ -15,6 +15,14 @@ var app = new Vue({
               5: 'Friday',
               6: 'Saturday'
       },
+      days_low: { 0: 'sunday',
+                  1: 'monday',
+                  2: 'tuesday',
+                  3: 'wednesday',
+                  4: 'thursday',
+                  5: 'friday',
+                  6: 'saturday'
+      },
       items: {},
       locations: {},
       orders: [],
@@ -120,7 +128,14 @@ var app = new Vue({
       }
     },
     get_data: function() {
-      var self=this
+      var self = this
+      var days = { 'sunday' : 0,
+                   'monday' : 1,
+                  'tuesday' : 2,
+                'wednesday' : 3,
+                 'thursday' : 4,
+                   'friday' : 5,
+                 'saturday' : 6 }
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
@@ -149,6 +164,7 @@ var app = new Vue({
                   var orders = data.data.orders
                   for (var i in orders) {
                     var order = orders[i]
+                    order.day = days[order.day]
                     if (self.single_location) {
                       if (self.single_location == order.location) {
                         self.orders.push(order)
@@ -216,7 +232,7 @@ var app = new Vue({
           var params = new URLSearchParams();
           params.append('name', this.username);
           params.append('password', this.password);
-          params.append('day', this.new_day_saved);
+          params.append('day', this.days_low[this.new_day_saved]);
           params.append('location', this.new_location_saved);
           params.append('item', this.new_item_saved);
           axios.post('/api/order_delete_item', params)
@@ -247,9 +263,9 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      params.append('day_from', this.copy_day_from);
+      params.append('day_from', this.days_low[this.copy_day_from]);
       params.append('location_from', this.copy_location_from);
-      params.append('day_to', this.copy_day_to);
+      params.append('day_to', this.days_low[this.copy_day_to]);
       params.append('location_to', this.copy_location_to);
       axios.post('/api/copy_order', params)
            .then(function(data) {
@@ -262,7 +278,7 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      params.append('day', day);
+      params.append('day', this.days_low[day]);
       params.append('location', location);
       params.append('active', active);
       axios.post('/api/activate_order', params)
@@ -294,7 +310,7 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      params.append('day', day);
+      params.append('day', this.days_low[day]);
       params.append('location', location);
       params.append('item', item);
       params.append('qte', qte);
@@ -309,7 +325,7 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      params.append('day', day);
+      params.append('day', this.days_low[day]);
       params.append('location', location);
       params.append('item', item);
       axios.post('/api/order_delete_item', params)
