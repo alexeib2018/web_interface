@@ -317,12 +317,17 @@ post '/api/get_data' => sub {
 		$self->render(text => '{"customer_id":"0"}', format => 'json');
 		return;
 	}
-	my $items = select_json( ['id','description'], "SELECT items.id, description FROM items JOIN customer_items ON items.id=customer_items.item_id WHERE customer_items.customer_id=$customer_id");
-	my $locations = select_json( ['id','location'], "SELECT id, location FROM locations WHERE customer_id=$customer_id");
+	my $items = select_json( ['id','description'], "SELECT items.id, description
+	                                                  FROM items
+	                                                  JOIN prices ON items.id=TO_NUMBER(prices.item_no,'9999')
+	                                                           WHERE prices.account='$customer_id'");
+	my $locations = select_json( ['id','location'], "SELECT id, location
+	                                                   FROM locations
+	                                                  WHERE account='$customer_id'");
 	my $orders = select_json( ['day','location','item','qte','active'],
-							  "SELECT day_of_week,location_id,item_id,qte,active
+							  "SELECT day_of_week,location,item_no,quantity,active
 							     FROM standing_orders
-							    WHERE customer_id='$customer_id'");
+							    WHERE account='$customer_id'");
 
 	my $result = '{"customer_id":"'.$customer_id.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
     $self->render(text => $result, format => 'json');
