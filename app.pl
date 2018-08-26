@@ -36,6 +36,7 @@ sub select_json {
 	  for(my $i=0; $i<scalar @$fields; $i++) {
 	  	my $field = @$fields[$i];
 	  	my $value = $array[$i];
+	  	$value =~ s/"/\\"/g;
 	    push @row, '"'.$field.'":"'.$value.'"';
 	  }
 	  push @result, '{'.(join ',', @row).'}';
@@ -319,7 +320,7 @@ post '/api/get_data' => sub {
 	}
 	my $items = select_json( ['id','description'], "SELECT items.id, description
 	                                                  FROM items
-	                                                  JOIN prices ON items.id=TO_NUMBER(prices.item_no,'9999')
+	                                                  JOIN prices ON items.item_no=prices.item_no
 	                                                           WHERE prices.account='$account'");
 	my $locations = select_json( ['id','location'], "SELECT id, location
 	                                                   FROM locations
