@@ -283,165 +283,89 @@ sub create_location {
 }
 
 
-get '/' => sub {
+any '/' => sub {
     my $self = shift;
-    $self->render('index');
-};
-
-get '/api' => sub {
-    my $self = shift;
-
-    my @fields = ('name', 'password');
-    my $result = select_json( ['name'], 'customer', "WHERE name='alexei' AND password='alexeib123'" );
-
-    $self->render(text => $result, format => 'json');
-};
-
-post '/api/login' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-
-    # my $result = select_json( ['name'], 'customer', "WHERE name='$name' AND password='$password'" );
-    # $self->render(text => $result, format => 'json');
-	my $account = get_account($name, $password);
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
-};
-
-post '/api/get_data' => sub {
-	my $self = shift;
+    my $action = $self->param('action');
 	my $name = $self->param('name');
 	my $password = $self->param('password');
 
 	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
+
+	if ($action eq '/api/login') {
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/get_data') {
+		my $items = select_json( ['id','description'], "SELECT items.id, description
+		                                                  FROM items
+		                                                  JOIN prices ON items.item_no=prices.item_no
+		                                                           WHERE prices.account='$account'");
+		my $locations = select_json( ['id','location'], "SELECT id, location
+		                                                   FROM locations
+		                                                  WHERE account='$account'");
+		my $orders = select_json( ['day','location','item','qte','active'],
+								  "SELECT day_of_week,location,item_no,quantity,active
+								     FROM standing_orders
+								    WHERE account='$account'");
+
+		my $result = '{"account":"'.$account.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
+	    $self->render(text => $result, format => 'json');
+	} elsif ($action eq '/api/order_save') {
+		my $day = $self->param('day');
+		my $location = $self->param('location');
+		my $item = $self->param('item');
+		my $qte = $self->param('qte');
+		my $active = $self->param('active');
+
+		if (get_location_id($location, $account)  == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		if (standing_order_create_or_update($account, $day, $location, $item, $qte, $active) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/order_delete_item') {
+		my $item = $self->param('item');
+		my $day = $self->param('day');
+		my $location = $self->param('location');
+
+		if (standing_order_delete_item($account, $item, $day, $location) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/create_location') {
+		my $location = $self->param('location');
+
+		if (create_location($account, $location) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/activate_order') {
+		my $day = $self->param('day');
+		my $location = $self->param('location');
+		my $active = $self->param('active');
+
+		if (standing_order_activate($account, $day, $location, $active) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/copy_order') {
+		my $day_from = $self->param('day_from');
+		my $location_from = $self->param('location_from');
+		my $day_to = $self->param('day_to');
+		my $location_to = $self->param('location_to');
+
+		if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} else {
+	    $self->render('index');	
 	}
-	my $items = select_json( ['id','description'], "SELECT items.id, description
-	                                                  FROM items
-	                                                  JOIN prices ON items.item_no=prices.item_no
-	                                                           WHERE prices.account='$account'");
-	my $locations = select_json( ['id','location'], "SELECT id, location
-	                                                   FROM locations
-	                                                  WHERE account='$account'");
-	my $orders = select_json( ['day','location','item','qte','active'],
-							  "SELECT day_of_week,location,item_no,quantity,active
-							     FROM standing_orders
-							    WHERE account='$account'");
-
-	my $result = '{"account":"'.$account.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
-    $self->render(text => $result, format => 'json');
-};
-
-post '/api/order_save' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-	my $day = $self->param('day');
-	my $location = $self->param('location');
-	my $item = $self->param('item');
-	my $qte = $self->param('qte');
-	my $active = $self->param('active');
-
-	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
-	}
-
-	if (get_location_id($location, $account)  == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	if (standing_order_create_or_update($account, $day, $location, $item, $qte, $active) == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
-};
-
-post '/api/order_delete_item' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-	my $item = $self->param('item');
-	my $day = $self->param('day');
-	my $location = $self->param('location');
-
-	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
-	}
-
-	if (standing_order_delete_item($account, $item, $day, $location) == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
-};
-
-post '/api/create_location' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-	my $location = $self->param('location');
-
-	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
-	}
-
-	if (create_location($account, $location) == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
-};
-
-post '/api/activate_order' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-	my $day = $self->param('day');
-	my $location = $self->param('location');
-	my $active = $self->param('active');
-
-	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
-	}
-
-	if (standing_order_activate($account, $day, $location, $active) == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
-};
-
-post '/api/copy_order' => sub {
-	my $self = shift;
-	my $name = $self->param('name');
-	my $password = $self->param('password');
-	my $day_from = $self->param('day_from');
-	my $location_from = $self->param('location_from');
-	my $day_to = $self->param('day_to');
-	my $location_to = $self->param('location_to');
-
-	my $account = get_account($name, $password);
-	if ($account eq '0') {
-		$self->render(text => '{"account":"0"}', format => 'json');
-		return;
-	}
-
-	if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to) == 0) {
-		return $self->render(text => '{"account":"0"}', format => 'json');
-	}
-
-	$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 };
 
 app->start;
