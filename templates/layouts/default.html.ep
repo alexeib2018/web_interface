@@ -39,10 +39,12 @@
                  href="#">Locations</a>
             </li>
           </ul>
-          <a class="nav-link"
-              v-if="login"
-              @click="proc_logout()"
-              href="#">Logout</a>
+          <div v-if="login" style="display:contents">
+            account: name
+            <a class="nav-link"
+                @click="proc_logout()"
+                href="#">Logout</a>
+          </div>
         </div>
       </nav>
 
@@ -206,7 +208,7 @@ var app = new Vue({
                   var items = data.data.items
                   self.items = {}
                   for (var item in items) {
-                    self.items[ items[item].id ] = items[item].description
+                    self.items[ items[item].id ] = items[item].description.replace(/\b[a-z](?=(?:[a-z]|\W|$))/g, function($0) { return $0.toUpperCase();})
                   }
 
                   var locations = data.data.locations
