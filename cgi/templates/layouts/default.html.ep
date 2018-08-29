@@ -205,7 +205,7 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      axios.post('/app.pl?action=/api/get_data', params)
+      axios.post('/cgi/app.pl?action=/api/get_data', params)
            .then(function(data) {
                 if (data.data.account!=0) {
                   var items = data.data.items
@@ -258,7 +258,7 @@ var app = new Vue({
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
-      axios.post('/app.pl?action=/api/login', params)
+      axios.post('/cgi/app.pl?action=/api/login', params)
            .then(function(data) {
                   try {
                     if (data.data.account!=0) {
@@ -309,7 +309,7 @@ var app = new Vue({
         params.append('location_from', this.copy_location_from);
         params.append('day_to', this.days_low[this.copy_day_to]);
         params.append('location_to', this.copy_location_to);
-        axios.post('/app.pl?action=/api/copy_order', params)
+        axios.post('/cgi/app.pl?action=/api/copy_order', params)
              .then(function(data) {
                 self.get_data()
              })
@@ -334,7 +334,7 @@ var app = new Vue({
         params.append('day', this.days_low[this.new_day_saved]);
         params.append('location', this.new_location_saved);
         params.append('item', this.new_item_saved);
-        axios.post('/app.pl?action=/api/order_delete_item', params)
+        axios.post('/cgi/app.pl?action=/api/order_delete_item', params)
              .then(function(data) {
                 self.order_save(self.new_day, self.new_location, self.new_item, self.new_qte, 1)
              })
@@ -363,7 +363,7 @@ var app = new Vue({
       params.append('location_from', this.copy_location_from);
       params.append('day_to', this.days_low[this.copy_day_to]);
       params.append('location_to', this.copy_location_to);
-      axios.post('/app.pl?action=/api/copy_order', params)
+      axios.post('/cgi/app.pl?action=/api/copy_order', params)
            .then(function(data) {
               self.get_data()
            })
@@ -377,7 +377,7 @@ var app = new Vue({
       params.append('day', this.days_low[day]);
       params.append('location', location);
       params.append('active', active);
-      axios.post('/app.pl?action=/api/activate_order', params)
+      axios.post('/cgi/app.pl?action=/api/activate_order', params)
            .then(function(data) {
               self.get_data()
            })
@@ -395,7 +395,7 @@ var app = new Vue({
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('location', this.add_location);
-      axios.post('/app.pl?action=/api/create_location', params)
+      axios.post('/cgi/app.pl?action=/api/create_location', params)
            .then(function(data) {
               self.get_data()
            })
@@ -411,7 +411,7 @@ var app = new Vue({
       params.append('item', item);
       params.append('qte', qte);
       params.append('active', active);
-      axios.post('/app.pl?action=/api/order_save', params)
+      axios.post('/cgi/app.pl?action=/api/order_save', params)
            .then(function(data) {
               self.get_data()
            })
@@ -424,7 +424,7 @@ var app = new Vue({
       params.append('day', this.days_low[day]);
       params.append('location', location);
       params.append('item', item);
-      axios.post('/app.pl?action=/api/order_delete_item', params)
+      axios.post('/cgi/app.pl?action=/api/order_delete_item', params)
            .then(function(data) {
               self.get_data()
            })
