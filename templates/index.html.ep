@@ -66,7 +66,7 @@
 		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+row.day+'_'+location">
 		    		<tr v-for="item in index_table"
-		    		    @click="modal_order_edit(row.day, location, item.id, item.qte)">
+		    		    @click="modal_item_edit(row.day, location, item.id, item.qte)">
 		    			<td style="width:10%">{{ item.id }}</td>
 		    			<td style="width:50%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
@@ -130,7 +130,7 @@
 		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+day+'_'+row.location">
 		    		<tr v-for="item in index_table"
-		    		    @click="modal_order_edit(day, row.location, item.id, item.qte)">
+		    		    @click="modal_item_edit(day, row.location, item.id, item.qte)">
 		    			<td style="width:10%">{{ item.id }}</td>
 		    			<td style="width:50%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
@@ -277,12 +277,11 @@
   </div>
 </div>
 
-<div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="editItemModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" v-if="!new_editfl">Add new Order</h5>
-        <h5 class="modal-title" v-if="new_editfl">Edit Order</h5>
+        <h5>Edit Item</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -320,11 +319,11 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" 
+        <!-- button type="button" 
             @click="modal_order_copy()"
-                class="btn btn-warning">Copy</button>
+                class="btn btn-warning">Copy</button -->
         <button type="button" 
-            @click="modal_order_save()"
+                @click="modal_item_edit_save()"
                 class="btn btn-primary">Save</button>
       </div>
     </div>
