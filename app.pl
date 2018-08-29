@@ -283,7 +283,7 @@ sub create_location {
 }
 
 
-any '/' => sub {
+any '/app.pl' => sub {
     my $self = shift;
     my $action = $self->param('action');
 	my $name = $self->param('name');
