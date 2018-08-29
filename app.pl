@@ -282,8 +282,7 @@ sub create_location {
 	return 1;
 }
 
-
-any '/app.pl' => sub {
+sub process_request {
     my $self = shift;
     my $action = $self->param('action');
 	my $name = $self->param('name');
@@ -292,9 +291,11 @@ any '/app.pl' => sub {
 	my $account = get_account($name, $password);
 
 	if ($action eq '/api/login') {
-		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+		my $name = select_json( ['name'], "SELECT name FROM customers WHERE account='$account'");
+
+		$self->render(text => '{"account":"'.$account.'","name":'.$name.'}', format => 'json');
 	} elsif ($action eq '/api/get_data') {
-		my $items = select_json( ['id','description'], "SELECT items.id, description
+		my $items = select_json( ['id','description'], "SELECT items.item_no, description
 		                                                  FROM items
 		                                                  JOIN prices ON items.item_no=prices.item_no
 		                                                           WHERE prices.account='$account'");
@@ -366,6 +367,16 @@ any '/app.pl' => sub {
 	} else {
 	    $self->render('index');	
 	}
+}
+
+any '/' => sub {
+	my $self = shift;
+	process_request($self);
+};
+
+any 'app.pl' => sub {
+	my $self = shift;
+	process_request($self);
 };
 
 app->start;
