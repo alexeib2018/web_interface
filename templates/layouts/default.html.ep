@@ -432,6 +432,12 @@ var app = new Vue({
     set_single_location: function(location) {
       this.single_location = location
       this.get_data()
+    },
+    show_location: function(location) {
+      this.active = 2
+      setTimeout( function() {
+        document.getElementById('location_'+location).scrollIntoView()
+      }, 100 )
     }
   },
   watch: {

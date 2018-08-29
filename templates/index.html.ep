@@ -94,7 +94,7 @@
 
 <div v-if="active==2">
   <ul>
-  	<li v-for="row in table">
+  	<li v-for="row in table" v-bind:id="'location_' + row.location">
 	  <b>{{ locations[row.location] }}</b>
       <button type="button" 
       		  @click="new_location=row.location; modal_order_show()"
@@ -154,27 +154,30 @@
 	  </table>
   	</li>
   </ul>
+  <div style="height:100vh">
+    &nbsp;
+  </div>
 </div>
 
 <div v-if="active==3">
   <table class="table table-striped table-sm">
     <tbody>
       <tr v-for="(location,key) in locations">
-        <td @click="set_single_location(key)"
+        <td @click="show_location(key)"
             style="cursor:pointer">
         	{{ location }}
         </td>
       </tr>
     </tbody>
   </table>
-  <button type="button"
+  <!-- button type="button"
   		  v-if="!single_location"
   		  @click="modal_location_show()"
           class="btn btn-success btn-sm">New Location</button>
   <button type="button"
   		  v-if="single_location"
   		  @click="set_single_location(0)"
-          class="btn btn-success btn-sm">Show all locations</button>
+          class="btn btn-success btn-sm">Show all locations</button -->
 </div>
 
 <div class="modal fade" id="addOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
