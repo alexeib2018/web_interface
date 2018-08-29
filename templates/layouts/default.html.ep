@@ -13,7 +13,7 @@
   <body style="min-height:100vh">
     <div class="container" id="app">
       <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 20px;">
-        <a class="navbar-brand" href="#">Web Interface</a>
+        <a class="navbar-brand" href="/">Fresh Grill</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -39,8 +39,8 @@
                  href="#">Locations</a>
             </li>
           </ul>
-          <div v-if="login" style="display:contents">
-            account: name
+          <div v-if="login" style="display:contents; font-size: smaller;">
+            {{ login_account }}: {{ login_name }}
             <a class="nav-link"
                 @click="proc_logout()"
                 href="#">Logout</a>
@@ -106,7 +106,9 @@ var app = new Vue({
       copy_day_to: 0,
       copy_location_from: 0,
       copy_location_to: 0,
-      single_location: 0
+      single_location: 0,
+      login_account: '',
+      login_name: ''
     }
   },
   methods: {
@@ -259,6 +261,8 @@ var app = new Vue({
            .then(function(data) {
                   try {
                     if (data.data.account!=0) {
+                        self.login_account = data.data.account
+                        self.login_name = data.data.name[0].name.replace(/\b[a-z](?=(?:[a-z]|\W|$))/g, function($0) { return $0.toUpperCase();})
                         self.login = 1
                         self.active = 1
                         self.index = ''
