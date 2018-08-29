@@ -181,6 +181,106 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
+        <h5>Add new Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="height: 350px;">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link"
+               v-bind:class="{ active:(active_new==0) }"
+               @click="active_new=0"
+               href="#">Create Item</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               v-bind:class="{ active:(active_new==1) }"
+               @click="active_new=1"
+               href="#">Copy Section</a>
+          </li>
+        </ul>
+
+        <div v-if=(active_new==0)>
+          <div style="margin:10px">
+         	  <select class="form-control" v-model="new_day">
+              <option v-for="(day,key) in days" v-bind:value="key">{{ day }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+         	  <select class="form-control" v-model="new_location">
+              <option v-for="(location,key) in locations" v-bind:value="key">{{ location }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+          	<input type="number" 
+          	       v-model='new_item' 
+          	       class="form-control"
+          	       style="width:30%; display:inline">
+          	<span><- Item number</span>
+          </div>
+          <div style="margin:10px">
+         	  <select class="form-control" v-model="new_item">
+              <option v-for="(item,key) in items" v-bind:value="key">{{ key }} {{ item }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+          	<input type="number" 
+          	       v-model='new_qte' 
+          	       class="form-control"
+          	       style="width:30%; display:inline">
+          	<span><- Quantity</span>
+          </div>
+        </div>
+
+        <div v-if=(active_new==1)>
+          <div style="margin:10px">
+            From:
+          </div>
+          <div style="margin:10px">
+            <select class="form-control" v-model="copy_day_from">
+              <option v-for="(day,key) in days" v-bind:value="key">{{ day }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+            <select class="form-control" v-model="copy_location_from">
+              <option v-for="(location,key) in locations" v-bind:value="key">{{ location }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+            To:
+          </div>
+          <div style="margin:10px">
+            <select class="form-control" v-model="copy_day_to">
+              <option v-for="(day,key) in days" v-bind:value="key">{{ day }}</option>
+            </select>
+          </div>
+          <div style="margin:10px">
+            <select class="form-control" v-model="copy_location_to">
+              <option v-for="(location,key) in locations" v-bind:value="key">{{ location }}</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- button type="button" 
+        		@click="modal_order_copy()"
+                class="btn btn-warning">Copy</button -->
+        <button type="button" 
+        		@click="modal_order_save()"
+                class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
         <h5 class="modal-title" v-if="!new_editfl">Add new Order</h5>
         <h5 class="modal-title" v-if="new_editfl">Edit Order</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -189,42 +289,42 @@
       </div>
       <div class="modal-body">
         <div style="margin:10px">
-       	  <select class="form-control" v-model="new_day">
+          <select class="form-control" v-model="new_day">
             <option v-for="(day,key) in days" v-bind:value="key">{{ day }}</option>
           </select>
         </div>
         <div style="margin:10px">
-       	  <select class="form-control" v-model="new_location">
+          <select class="form-control" v-model="new_location">
             <option v-for="(location,key) in locations" v-bind:value="key">{{ location }}</option>
           </select>
         </div>
         <div style="margin:10px">
-        	<input type="number" 
-        	       v-model='new_item' 
-        	       class="form-control"
-        	       style="width:30%; display:inline">
-        	<span><- Item number</span>
+          <input type="number" 
+                 v-model='new_item' 
+                 class="form-control"
+                 style="width:30%; display:inline">
+          <span><- Item number</span>
         </div>
         <div style="margin:10px">
-       	  <select class="form-control" v-model="new_item">
+          <select class="form-control" v-model="new_item">
             <option v-for="(item,key) in items" v-bind:value="key">{{ key }} {{ item }}</option>
           </select>
         </div>
         <div style="margin:10px">
-        	<input type="number" 
-        	       v-model='new_qte' 
-        	       class="form-control"
-        	       style="width:30%; display:inline">
-        	<span><- Quantity</span>
+          <input type="number" 
+                 v-model='new_qte' 
+                 class="form-control"
+                 style="width:30%; display:inline">
+          <span><- Quantity</span>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" 
-        		@click="modal_order_copy()"
+            @click="modal_order_copy()"
                 class="btn btn-warning">Copy</button>
         <button type="button" 
-        		@click="modal_order_save()"
+            @click="modal_order_save()"
                 class="btn btn-primary">Save</button>
       </div>
     </div>

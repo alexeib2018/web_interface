@@ -1,12 +1,16 @@
 #!/usr/bin/env perl
+use warnings;
+use strict;
 use Mojolicious::Lite;
 use DBI;
 
-my $dbhost = "ec2-54-83-51-78.compute-1.amazonaws.com";
+require "settings.pl";
+our $dbhost;
+our $dbname;
+our $username;
+our $password;
+
 my $dbport = "5432";
-my $dbname = "db9ptvci6bt8cc";
-my $username = "sjypzttvwajipn";
-my $password = "ec2c4d06d5d65d1ef826d5488c3cd885609826bdca1ee1359996ca99895288b9";
 my $dboptions = "-e";
 my $dbtty = "ansi";
 
@@ -157,15 +161,15 @@ sub standing_order_create_or_update {
 sub standing_order_copy {
 	my $account = shift;
 	my $day_of_week_from = shift;
-	my $location_id_from = shift;
+	my $location_from = shift;
 	my $day_of_week_to = shift;
-	my $location_id_to = shift;
+	my $location_to = shift;
 
-	my $query = "SELECT item_no,qte,active
+	my $query = "SELECT item_no,quantity,active
 	               FROM standing_orders
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week_from' AND
-	                    location='$location_id_from'";
+	                    location='$location_from'";
 
 	# print $query;
 
@@ -180,10 +184,10 @@ sub standing_order_copy {
 	}
 
 	while (my @array = $sth->fetchrow_array()) {
-		my $item_id = $array[0];
-		my $qte = $array[1];
+		my $item_no = $array[0];
+		my $quantity = $array[1];
 		my $active = $array[2];
-		standing_order_create_or_update($account, $day_of_week_to, $location_id_to, $item_id, $qte, $active);
+		standing_order_create_or_update($account, $day_of_week_to, $location_to, $item_no, $quantity, $active);
 	}
 
 	$sth->finish();
