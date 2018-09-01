@@ -164,8 +164,13 @@
     <tbody>
       <tr v-for="(location,key) in locations">
         <td @click="show_location(key)"
-            style="cursor:pointer">
+            style="width:80%; cursor:pointer">
         	{{ location }}
+        </td>
+        <td style="width:20%; text-align:right">
+          <button type="button"
+                  @click.stop='modal_edit_location_show(key)'
+                  class="btn btn-warning btn-sm">Edit</button>
         </td>
       </tr>
     </tbody>
@@ -438,6 +443,30 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" 
         		@click="modal_copy_save()"
+                class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editLocationModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" v-if="!new_editfl">Edit Location</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" 
+               v-model='edit_location'
+               class="form-control">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" 
+            @click="modal_edit_location_save()"
                 class="btn btn-primary">Save</button>
       </div>
     </div>

@@ -123,7 +123,9 @@ var app = new Vue({
       login_account: '',
       login_name: '',
       active_new: 1,
-      show_disclaimer: 1
+      show_disclaimer: 1,
+      edit_location_id: 0,
+      edit_location: ''
     }
   },
   methods: {
@@ -414,6 +416,14 @@ var app = new Vue({
               self.get_data()
            })
       $('#addLocationModal').modal('hide')
+    },
+    modal_edit_location_show: function (id) {
+      this.edit_location_id = id
+      this.edit_location = this.locations[id]
+      $('#editLocationModal').modal('show')
+    },
+    modal_edit_location_save: function () {
+      $('#editLocationModal').modal('hide')
     },
     order_save: function(day,location,item,qte,active) {
       var self=this
