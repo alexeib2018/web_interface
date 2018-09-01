@@ -170,11 +170,10 @@
       </tr>
     </tbody>
   </table>
-  <!-- button type="button"
-  		  v-if="!single_location"
+  <button type="button"
   		  @click="modal_location_show()"
           class="btn btn-success btn-sm">New Location</button>
-  <button type="button"
+  <!-- button type="button"
   		  v-if="single_location"
   		  @click="set_single_location(0)"
           class="btn btn-success btn-sm">Show all locations</button -->
