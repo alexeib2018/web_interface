@@ -286,6 +286,29 @@ sub create_location {
 	return 1;
 }
 
+sub edit_location {
+	my $account = shift;
+	my $location_id = shift;
+	my $location = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "UPDATE locations
+	                SET location='$location'
+	              WHERE account='$account' AND
+	                    id='$location_id'";
+
+	my $rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
 sub process_request {
     my $self = shift;
     my $action = $self->param('action');
@@ -343,6 +366,15 @@ sub process_request {
 		my $location = $self->param('location');
 
 		if (create_location($account, $location) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/edit_location') {
+		my $location_id = $self->param('location_id');
+		my $location = $self->param('location');
+
+		if (edit_location($account, $location_id, $location) == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 

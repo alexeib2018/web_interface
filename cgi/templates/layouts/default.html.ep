@@ -423,6 +423,16 @@ var app = new Vue({
       $('#editLocationModal').modal('show')
     },
     modal_edit_location_save: function () {
+      var self=this
+      var params = new URLSearchParams();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('location_id', this.edit_location_id);
+      params.append('location', this.edit_location);
+      axios.post('/cgi/app.pl?action=/api/edit_location', params)
+           .then(function(data) {
+              self.get_data()
+           })
       $('#editLocationModal').modal('hide')
     },
     order_save: function(day,location,item,qte,active) {
