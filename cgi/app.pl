@@ -55,7 +55,7 @@ sub select_json {
 sub get_account {
 	my $name = shift;
 	my $pass = shift;
-	my $query = "SELECT account FROM logins WHERE account='$name' AND password='$pass' AND active=true";
+	my $query = "SELECT account FROM logins WHERE email='$name' AND password='$pass' AND active=true";
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});

@@ -68,7 +68,7 @@ var app = new Vue({
       login: 0,
       active: 0,
       index: '',
-      username: 'c0002331',
+      username: 'npeugh@apu.edu',
       password: 'apu1027!',
       days: { 0: 'Sunday',
               1: 'Monday',
