@@ -12,7 +12,8 @@
   </head>
   <body style="min-height:100vh">
     <div class="container" id="app">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 20px;">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light"
+           v-bind:style="{ 'margin-bottom': (show_disclaimer)?'0px':'20px'}">
         <a class="navbar-brand" href="/">Fresh Grill</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -46,6 +47,18 @@
                 href="#">Logout</a>
           </div>
         </div>
+      </nav>
+
+      <nav class="navbar navbar-expand-lg navbar-light bg-light"
+           style="margin-bottom: 20px;"
+           v-if="show_disclaimer">
+          <div class="col-10">
+            1. Day is shipment day from Fresh Grill<br>
+            2. Any changes need to be made at least 40 hours prior (eg Monday 8am for Wednesday)
+          </div>
+          <div class="col-2" style="text-align:right; font-size:small">
+            <button @click="show_disclaimer=0">Close disclaimer</button>
+          </div>
       </nav>
 
       <div class="content">
@@ -109,7 +122,8 @@ var app = new Vue({
       single_location: 0,
       login_account: '',
       login_name: '',
-      active_new: 1
+      active_new: 1,
+      show_disclaimer: 1
     }
   },
   methods: {
