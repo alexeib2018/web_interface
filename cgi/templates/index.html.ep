@@ -167,14 +167,14 @@
 <div v-if="active==3">
   <table class="table table-striped table-sm">
     <tbody>
-      <tr v-for="(location,key) in locations">
-        <td @click="show_location(key)"
+      <tr v-for="location in locations_sorted">
+        <td @click="show_location(location.id)"
             style="width:80%; cursor:pointer">
-        	{{ location }}
+        	{{ location.location }}
         </td>
         <td style="width:20%; text-align:right">
           <button type="button"
-                  @click.stop='modal_edit_location_show(key)'
+                  @click.stop='modal_edit_location_show(location.id)'
                   class="btn btn-warning btn-sm">Edit</button>
         </td>
       </tr>
