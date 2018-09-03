@@ -1,4 +1,0 @@
-RewriteEngine on
-RewriteRule ^/index.html$ /index.html [L]
-RewriteRule ^/cgi/app.pl(.*)$ /cgi/app.pl$1 [L]
-RewriteRule ^sku/.*$ /cgi/app.pl [L]
