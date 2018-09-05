@@ -290,6 +290,8 @@ var app = new Vue({
     },
     proc_login: function() {
       var self=this
+      this.username = this.username.toLowerCase()
+      this.password = this.password.toLowerCase()
       var params = new URLSearchParams();
       params.append('name', this.username);
       params.append('password', this.password);
