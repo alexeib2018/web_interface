@@ -224,7 +224,7 @@ var app = new Vue({
                  'thursday' : 4,
                    'friday' : 5,
                  'saturday' : 6 }
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       axios.post('/cgi/app.pl?action=/api/get_data', params)
@@ -347,7 +347,7 @@ var app = new Vue({
         this.order_save(this.new_day, this.new_location, this.new_item, this.new_qte, 1)
       } else {
         var self=this
-        var params = new URLSearchParams();
+        var params = new FormData();
         params.append('name', this.username);
         params.append('password', this.password);
         params.append('day_from', this.days_low[this.copy_day_from]);
@@ -373,7 +373,7 @@ var app = new Vue({
           this.new_location != this.new_location_saved ||
           this.new_item != this.new_item_saved) {
         var self=this
-        var params = new URLSearchParams();
+        var params = new FormData();
         params.append('name', this.username);
         params.append('password', this.password);
         params.append('day', this.days_low[this.new_day_saved]);
@@ -401,7 +401,7 @@ var app = new Vue({
     },
     modal_copy_save: function() {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('day_from', this.days_low[this.copy_day_from]);
@@ -416,7 +416,7 @@ var app = new Vue({
     },
     activate_order: function(day, location, active) {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('day', this.days_low[day]);
@@ -436,7 +436,7 @@ var app = new Vue({
     },
     modal_location_save: function() {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('location', this.add_location);
@@ -453,7 +453,7 @@ var app = new Vue({
     },
     modal_edit_location_save: function () {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('location_id', this.edit_location_id);
@@ -466,7 +466,7 @@ var app = new Vue({
     },
     order_save: function(day,location,item,qte,active) {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('day', this.days_low[day]);
@@ -481,7 +481,7 @@ var app = new Vue({
     },
     delete_item: function(day,location,item) {
       var self=this
-      var params = new URLSearchParams();
+      var params = new FormData();
       params.append('name', this.username);
       params.append('password', this.password);
       params.append('day', this.days_low[day]);
