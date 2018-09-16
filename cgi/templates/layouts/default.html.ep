@@ -55,7 +55,6 @@
           <div class="col-10">
             1. Day is shipment day from Fresh Grill<br/>
             2. Any changes need to be made at least 40 hours prior (eg Monday 8am for Wednesday)<br/>
-            3. All units are individual each not cases on third party!
           </div>
           <!-- div class="col-2" style="text-align:right; font-size:small">
             <button @click="show_disclaimer=0">Close disclaimer</button>
