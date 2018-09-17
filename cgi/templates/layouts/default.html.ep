@@ -453,9 +453,13 @@ var app = new Vue({
     modal_edit_location_show: function (id) {
       this.edit_location_id = id
       this.edit_location = this.locations[id]
+      this.location_invalid = false
       $('#editLocationModal').modal('show')
     },
-    modal_edit_location_save: function () {
+    modal_edit_location_save: function (location) {
+      if (!this.validate_location(location)) {
+        return
+      }
       var self=this
       var params = new FormData();
       params.append('name', this.username);

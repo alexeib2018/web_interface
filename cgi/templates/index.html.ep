@@ -472,14 +472,22 @@
         </button>
       </div>
       <div class="modal-body">
-        <input type="text" 
-               v-model='edit_location'
-               class="form-control">
+        <div style="margin:10px">
+          <input type="text" 
+                 v-model='edit_location'
+                 @change="validate_location(edit_location)"
+                 @input="validate_location(edit_location)"
+                 class="form-control">
+        </div>
+        <div style="margin-left:10px; font-size:small; color:#FF0000;"
+             v-bind:style="{ opacity: (location_invalid)?1:0 }">
+          The location name should be length of 1-20 chars
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button type="button" 
-            @click="modal_edit_location_save()"
+            @click="modal_edit_location_save(edit_location)"
                 class="btn btn-primary">Save</button>
       </div>
     </div>
