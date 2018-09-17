@@ -130,7 +130,8 @@ var app = new Vue({
       active_new: 1,
       show_disclaimer: 1,
       edit_location_id: 0,
-      edit_location: ''
+      edit_location: '',
+      location_invalid: false
     }
   },
   methods: {
@@ -431,9 +432,13 @@ var app = new Vue({
     },
     modal_location_show: function() {
       this.add_location = ''
+      this.location_invalid = false
       $('#addLocationModal').modal('show')
     },
-    modal_location_save: function() {
+    modal_location_save: function(location) {
+      if (!this.validate_location(location)) {
+        return
+      }
       var self=this
       var params = new FormData();
       params.append('name', this.username);
@@ -500,6 +505,14 @@ var app = new Vue({
       setTimeout( function() {
         document.getElementById('location_'+location).scrollIntoView()
       }, 100 )
+    },
+    validate_location: function(location) {
+      if (location.length<=0 || location.length > 20) {
+        this.location_invalid = true
+        return false
+      }
+      this.location_invalid = false
+      return true
     }
   },
   watch: {
