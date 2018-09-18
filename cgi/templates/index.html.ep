@@ -67,18 +67,23 @@
 			    		    v-if="paused[''+row.day+'_'+location]"
 			    	        class="btn btn-warning btn-sm">Activate</button>
 	 	    	</p>
+          <p v-if="index==''+row.day+'_'+location" style="display: inline;">
+            <button type="button"
+                  @click="delete_order_show(row.day, location)"
+                    class="btn btn-danger btn-sm">Delete</button>
+          </p>
 		    </td>
 		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+row.day+'_'+location">
 		    		<tr v-for="item in index_table"
 		    		    @click="modal_item_edit(row.day, location, item.id, item.qte)">
 		    			<td style="width:10%">{{ item.id }}</td>
-		    			<td style="width:50%">{{ item.item }}</td>
+		    			<td style="width:60%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
-		    			<td style="width:20%; text-align:right">
-					    	<button type="button" 
+		    			<td style="width:10%; text-align:right">
+					    	<!-- button type="button" 
 					    			@click.stop='delete_item(row.day,location,item.id)'
-					    	        class="btn btn-danger btn-sm">Delete</button>
+					    	        class="btn btn-danger btn-sm">Delete</button -->
 		    			</td>
 		    		</tr>
 		    	</table>	
@@ -489,6 +494,30 @@
         <button type="button" 
             @click="modal_edit_location_save(edit_location)"
                 class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" v-if="!new_editfl">Delete order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="margin:10px">
+          Are you sure to delete {{ days[delete_day] }} order for {{ locations[delete_location] }} ?
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" 
+                @click="delete_order_confirm()"
+                class="btn btn-danger">Delete</button>
       </div>
     </div>
   </div>
