@@ -416,8 +416,17 @@ var app = new Vue({
       this.delete_location = location
     },
     delete_order_confirm() {
+      var self=this
+      var params = new FormData();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('day', this.days_low[this.delete_day]);
+      params.append('location', this.delete_location);
+      axios.post('/cgi/app.pl?action=/api/delete_order', params)
+           .then(function(data) {
+              self.get_data()
+           })
       $('#deleteOrderModal').modal('hide')
-
     },
     delete_item: function(day,location,item) {
       var self=this

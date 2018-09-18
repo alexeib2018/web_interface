@@ -245,6 +245,30 @@ sub standing_order_activate {
 	return 1;
 }
 
+sub standing_order_delete {
+	my $account = shift;
+	my $day_of_week = shift;
+	my $location_id = shift;
+	my $active = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "DELETE FROM standing_orders
+	              WHERE account='$account' AND
+	                    day_of_week='$day_of_week' AND
+	                    location='$location_id'";
+
+	my $rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
 sub create_location {
 	my $account = shift;
 	my $location = shift;
@@ -384,6 +408,16 @@ sub process_request {
 		my $active = $self->param('active');
 
 		if (standing_order_activate($account, $day, $location, $active) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/delete_order') {
+		my $day = $self->param('day');
+		my $location = $self->param('location');
+		my $active = $self->param('active');
+
+		if (standing_order_delete($account, $day, $location, $active) == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
