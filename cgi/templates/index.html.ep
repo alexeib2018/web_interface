@@ -136,18 +136,23 @@
 			    		    v-if="paused[''+day+'_'+row.location]"
 			    	        class="btn btn-warning btn-sm">Activate</button>
 	 	    	</p>
+          <p v-if="index==''+day+'_'+row.location" style="display: inline;">
+            <button type="button"
+                  @click="delete_order_show(day, row.location)"
+                    class="btn btn-danger btn-sm">Delete</button>
+          </p>
 		    </td>
 		    <td style="width: 70%">
 		    	<table style="width:100%" v-if="index==''+day+'_'+row.location">
 		    		<tr v-for="item in index_table"
 		    		    @click="modal_item_edit(day, row.location, item.id, item.qte)">
 		    			<td style="width:10%">{{ item.id }}</td>
-		    			<td style="width:50%">{{ item.item }}</td>
+		    			<td style="width:60%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
-		    			<td style="width:20%; text-align:right">
-					    	<button type="button"
+		    			<td style="width:10%; text-align:right">
+					    	<!-- button type="button"
 					    			@click.stop='delete_item(day,row.location,item.id)'
-					    	        class="btn btn-danger btn-sm">Delete</button>
+					    	        class="btn btn-danger btn-sm">Delete</button -->
 		    			</td>
 		    		</tr>
 		    	</table>	
