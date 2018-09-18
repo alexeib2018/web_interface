@@ -138,13 +138,24 @@ sub standing_order_create_or_update {
 	}
 	$sth->finish();
 
-	if ($order_id==0) {
-		$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active)
-		               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
+	if ($order_id == 0) {
+		if ($qte > 0) {
+			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active)
+			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
+		} else {
+			return 0;
+		}
 	} else {
-		$query = "UPDATE standing_orders
-		             SET quantity='$qte', active='$active'
-		           WHERE id='$order_id'";
+		if ($qte > 0) {
+			$query = "UPDATE standing_orders
+			             SET quantity='$qte', active='$active'
+			           WHERE id='$order_id'";
+		} elsif ($qte == 0) {
+			$query = "DELETE FROM standing_orders
+			           WHERE id='$order_id'";
+		} else {
+			return 0;
+		}
 	}
 
 	$rv = $dbh->do($query);
