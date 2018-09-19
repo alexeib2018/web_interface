@@ -1,6 +1,6 @@
 <!doctype html>
 % layout 'default';
-% title 'Web interface';
+% title 'Standing orders';
 
 
 <div v-if="!login">
