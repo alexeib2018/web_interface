@@ -43,7 +43,7 @@
 	  <table class="table table-striped table-sm">
 		<tbody>
 		  <tr v-for="location in row.location"
-		      @click="index=''+row.day+'_'+location"
+		      @click="index = (index==''+row.day+'_'+location) ? '' : ''+row.day+'_'+location"
 		      style="cursor: pointer"
 		      v-bind:style="{ opacity: (paused[''+row.day+'_'+location])?0.3:1 }">
 		    <td style="width: 30%">
@@ -112,7 +112,7 @@
 	  <table class="table table-striped table-sm">
 		<tbody>
 		  <tr v-for="day in row.days"
-		      @click="index=''+day+'_'+row.location"
+          @click="index = (index==''+day+'_'+row.location) ? '' : ''+day+'_'+row.location"
 		      v-bind:style="{ opacity: (paused[''+day+'_'+row.location])?0.3:1 }"
 		      style="cursor: pointer">
 		    <td style="width: 30%">
