@@ -81,9 +81,9 @@
 		    			<td style="width:60%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
 		    			<td style="width:10%; text-align:right">
-					    	<!-- button type="button" 
+					    	<button type="button" 
 					    			@click.stop='delete_item(row.day,location,item.id)'
-					    	        class="btn btn-danger btn-sm">Delete</button -->
+					    	        class="btn btn-danger btn-sm">Delete</button>
 		    			</td>
 		    		</tr>
 		    	</table>	
@@ -150,9 +150,9 @@
 		    			<td style="width:60%">{{ item.item }}</td>
 		    			<td style="width:20%">{{ item.qte }}</td>
 		    			<td style="width:10%; text-align:right">
-					    	<!-- button type="button"
+					    	<button type="button"
 					    			@click.stop='delete_item(day,row.location,item.id)'
-					    	        class="btn btn-danger btn-sm">Delete</button -->
+					    	        class="btn btn-danger btn-sm">Delete</button>
 		    			</td>
 		    		</tr>
 		    	</table>	
