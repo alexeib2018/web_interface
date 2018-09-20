@@ -367,9 +367,42 @@ sub delete_location {
 	}
 	$sth->finish();
 
-	my $query = "DELETE FROM locations
-	              WHERE account='$account' AND
-                        id='$location_id'";
+	$query = "DELETE FROM locations
+	           WHERE account='$account' AND
+                     id='$location_id'";
+
+	$rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
+sub replace_items {
+	my $account = shift;
+	my $item_from = shift;
+	my $item_to = shift;
+	my $location_id = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query;
+	if ($location_id != '0') {
+		$query = "UPDATE standing_orders
+		             SET item_no='$item_to'
+		           WHERE account='$account' AND
+		                 item_no='$item_from' AND
+		                 location='$location_id'";
+	} else {
+		$query = "UPDATE standing_orders
+		             SET item_no='$item_to'
+		           WHERE account='$account' AND
+		                 item_no='$item_from'";
+	}
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -378,7 +411,7 @@ sub delete_location {
 	}
 
 	$dbh->disconnect();
-	return 1;
+	return 1;	
 }
 
 sub process_request {
@@ -491,6 +524,16 @@ sub process_request {
 		}
 
 		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/replace_items') {
+        my $item_from = $self->param('item_from');
+        my $item_to = $self->param('item_to');
+		my $location_id = $self->param('location_id');
+
+		if (replace_items($account, $item_from, $item_to, $location_id) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');		
 	} else {
 	    $self->render('index');	
 	}
