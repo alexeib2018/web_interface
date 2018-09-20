@@ -54,7 +54,11 @@ var app = new Vue({
       edit_location: '',
       location_invalid: false,
       delete_day: '',
-      delete_location: ''
+      delete_location: '',
+      replace_items: {},
+      replace_from_item: 0,
+      replace_to_item: 0,
+      replace_location: 0
     }
   },
   methods: {
@@ -473,6 +477,27 @@ var app = new Vue({
                 self.get_data()
               }
            })
+    },
+    replace_collect_items: function() {
+      console.log('Replace location:', this.replace_location)
+      this.replace_items = {}
+      for (var key in this.items) {
+        var value = this.items[key]
+        this.replace_items[key] = value
+      }
+    },
+    replace_process: function() {
+      var self=this
+      var params = new FormData();
+      params.append('name', this.username)
+      params.append('password', this.password)
+      params.append('item_from', this.replace_from_item)
+      params.append('item_to', this.replace_to_item)
+      params.append('location_id', this.replace_location)
+      axios.post('/cgi/app.pl?action=/api/replace_items', params)
+           .then(function(data) {
+              self.get_data()
+           })
     }
   },
   watch: {
@@ -483,9 +508,15 @@ var app = new Vue({
       if (val==2) {
         this.table_by_location()
       }
+      if (val==4) {
+        this.replace_collect_items()
+      }
     },
     index: function() {
       this.index_table_collect()
+    },
+    replace_location: function(val) {
+      this.replace_collect_items()
     }
   },
   mounted: function() {
