@@ -410,12 +410,12 @@ var app = new Vue({
               self.get_data()
            })
     },
-    delete_order_show(day, location) {
+    delete_order_show: function(day, location) {
       $('#deleteOrderModal').modal('show')
       this.delete_day = day
       this.delete_location = location
     },
-    delete_order_confirm() {
+    delete_order_confirm: function() {
       var self=this
       var params = new FormData();
       params.append('name', this.username);
