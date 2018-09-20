@@ -39,6 +39,12 @@
                  @click="active=3"
                  href="#">Locations</a>
             </li>
+            <li class="nav-item" v-if="login">
+              <a class="nav-link"
+                 v-bind:class="{ active:(active==4) }"
+                 @click="active=4"
+                 href="#">Item Exchange</a>
+            </li>
           </ul>
           <div v-if="login" style="display:contents; font-size: smaller;">
             {{ login_account }}: {{ login_name }}
