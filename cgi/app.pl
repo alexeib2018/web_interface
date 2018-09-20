@@ -343,6 +343,44 @@ sub edit_location {
 	return 1;
 }
 
+sub delete_location {
+	my $account = shift;
+	my $location_id = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "SELECT id 
+	               FROM standing_orders
+	              WHERE account='$account' AND
+	                    location='$location_id'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	while (my @array = $sth->fetchrow_array()) {
+		return 0;
+	}
+	$sth->finish();
+
+	my $query = "DELETE FROM locations
+	              WHERE account='$account' AND
+                        id='$location_id'";
+
+	my $rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+	return 1;
+}
+
 sub process_request {
     my $self = shift;
     my $action = $self->param('action');
@@ -440,6 +478,14 @@ sub process_request {
 		my $location_to = $self->param('location_to');
 
 		if (standing_order_copy($account, $day_from, $location_from, $day_to, $location_to) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
+	} elsif ($action eq '/api/delete_location') {
+		my $location_id = $self->param('location_id');
+
+		if (delete_location($account, $location_id) == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 

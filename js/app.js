@@ -460,8 +460,19 @@ var app = new Vue({
       return true
     },
     delete_location_with_check: function(location_id) {
-      $('#deleteLocationModal').modal('show')
-
+      var self=this
+      var params = new FormData();
+      params.append('name', this.username);
+      params.append('password', this.password);
+      params.append('location_id', location_id);
+      axios.post('/cgi/app.pl?action=/api/delete_location', params)
+           .then(function(data) {
+              if (data.data.account == '0') {
+                $('#deleteLocationModal').modal('show')
+              } else {
+                self.get_data()
+              }
+           })
     }
   },
   watch: {
