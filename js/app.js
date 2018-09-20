@@ -58,7 +58,8 @@ var app = new Vue({
       replace_items: {},
       replace_from_item: 0,
       replace_to_item: 0,
-      replace_location: 0
+      replace_location: 0,
+      replace_search_results: []
     }
   },
   methods: {
@@ -486,9 +487,29 @@ var app = new Vue({
         this.replace_items[key] = value
       }
     },
+    replace_search: function() {
+      this.replace_search_results = []
+      for (var key in this.orders) {
+        var order = this.orders[key]
+        if (this.replace_location != 0) {
+          if (order.item == this.replace_from_item &&
+              order.location == this.replace_location) {
+            this.replace_search_results.push({ 'day': order.day,
+                                               'location': order.location,
+                                               'qte': order.qte })
+          }
+        } else {
+          if (order.item == this.replace_from_item) {
+            this.replace_search_results.push({ 'day': order.day,
+                                               'location': order.location,
+                                               'qte': order.qte })
+          }
+        }
+      }
+    },
     replace_process: function() {
       var self=this
-      var params = new FormData();
+      var params = new FormData()
       params.append('name', this.username)
       params.append('password', this.password)
       params.append('item_from', this.replace_from_item)
@@ -497,6 +518,7 @@ var app = new Vue({
       axios.post('/cgi/app.pl?action=/api/replace_items', params)
            .then(function(data) {
               self.get_data()
+              self.replace_search_results = []
            })
     }
   },
@@ -510,6 +532,7 @@ var app = new Vue({
       }
       if (val==4) {
         this.replace_collect_items()
+        this.replace_search_results = []
       }
     },
     index: function() {
@@ -517,6 +540,10 @@ var app = new Vue({
     },
     replace_location: function(val) {
       this.replace_collect_items()
+      this.replace_search_results = []
+    },
+    item_from: function(val) {
+      this.replace_search_results = []
     }
   },
   mounted: function() {

@@ -248,9 +248,25 @@
 
     <div class="col-12 m-1">
       <button type="button"
+              v-if="!replace_search_results.length"
+              @click="replace_search()"
+              class="btn btn-success btn-sm"
+              style="font-size: large;">Search</button>
+      <button type="button"
+              v-if="replace_search_results.length"
               @click="replace_process()"
               class="btn btn-success btn-sm"
               style="font-size: large;">Replace</button>
+    </div>
+
+    <div class="col-12 m-1">
+      <table  class="table table-striped table-sm" style="width:100%">
+        <tr v-for="item in replace_search_results">
+          <td>{{ days[item.day] }}</td>
+          <td>{{ locations[item.location] }}</td>
+          <td>{{ item.qte }}</td>
+        </tr>
+      </table>
     </div>
   </div>
 </div>
