@@ -458,6 +458,10 @@ var app = new Vue({
       }
       this.location_invalid = false
       return true
+    },
+    delete_location_with_check: function(location_id) {
+      $('#deleteLocationModal').modal('show')
+
     }
   },
   watch: {
