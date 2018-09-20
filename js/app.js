@@ -5,8 +5,8 @@ var app = new Vue({
       login: 0,
       active: 0,
       index: '',
-      username: 'test@test.com',
-      password: 'test123',
+      username: '',
+      password: '',
       days: { 0: 'Sunday',
               1: 'Monday',
               2: 'Tuesday',
@@ -482,9 +482,15 @@ var app = new Vue({
     replace_collect_items: function() {
       console.log('Replace location:', this.replace_location)
       this.replace_items = {}
-      for (var key in this.items) {
-        var value = this.items[key]
-        this.replace_items[key] = value
+      for (var key in this.orders) {
+        var order = this.orders[key]
+        if (this.replace_location != 0) {
+          if (order.location == this.replace_location) {
+            this.replace_items[order.item] = this.items[order.item]
+          }
+        } else {
+          this.replace_items[order.item] = this.items[order.item]
+        }        
       }
     },
     replace_search: function() {
@@ -542,7 +548,7 @@ var app = new Vue({
       this.replace_collect_items()
       this.replace_search_results = []
     },
-    item_from: function(val) {
+    replace_from_item: function(val) {
       this.replace_search_results = []
     }
   },
