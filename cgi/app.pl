@@ -140,8 +140,8 @@ sub standing_order_create_or_update {
 
 	if ($order_id == 0) {
 		if ($qte > 0) {
-			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active)
-			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active')";
+			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active, item_active)
+			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
 		} else {
 			return 0;
 		}
@@ -404,7 +404,8 @@ sub process_request {
 		my $orders = select_json( ['day','location','item','qte','active'],
 								  "SELECT day_of_week,location,item_no,quantity,active
 								     FROM standing_orders
-								    WHERE account='$account'");
+								    WHERE account='$account' AND
+								          item_active=true");
 
 		my $result = '{"account":"'.$account.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
 	    $self->render(text => $result, format => 'json');
