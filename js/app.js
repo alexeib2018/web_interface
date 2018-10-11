@@ -64,6 +64,29 @@ var app = new Vue({
   },
   methods: {
     table_by_date: function() {
+      function compare(location1, location2) {
+        var loc1str = self.locations[location1].toLowerCase().replace(/\s+/g, ' ')
+        var loc2str = self.locations[location2].toLowerCase().replace(/\s+/g, ' ')
+        return loc1str > loc2str
+      }
+      function insert(day, location) {
+        if (table[day].length == 0) {
+          table[ day ].push( location )
+        } else {
+          var inserted = false
+          for(var i=0; i<table[day].length; i++) {
+            if (compare(table[day][i], location)) {
+              table[day].splice(i, 0, location)
+              inserted = true
+              break
+            }
+          }
+          if (!inserted) {
+            table[ day ].push( location )
+          }
+        }
+      }
+      var self = this
       this.paused = {}
       var table = {}
       for(var i in this.orders) {
@@ -72,7 +95,7 @@ var app = new Vue({
           table[ order.day ] = []
         }
         if ( table[ order.day ].indexOf(order.location) == -1 ) {
-          table[ order.day ].push( order.location )
+          insert( order.day, order.location )
         }
 
         var index = '' + order.day + '_' + order.location
