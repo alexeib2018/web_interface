@@ -277,6 +277,9 @@ sub standing_order_activate {
 	my $location_id = shift;
 	my $active = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'standing_orders');
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -286,6 +289,14 @@ sub standing_order_activate {
 	                    day_of_week='$day_of_week' AND
 	                    location='$location_id'";
 
+	$log{'action'} = 'update';
+	$log{'new_value'} = "active=$active";
+	if ($active) {
+		$log{'old_value'} = "active=0";
+	} else {
+		$log{'old_value'} = "active=1";
+	}
+
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
 	  print "Error in request: " . $dbh->errstr . "\n";
@@ -293,6 +304,8 @@ sub standing_order_activate {
 	}
 
 	$dbh->disconnect();
+
+	save_log(%log);
 	return 1;
 }
 
