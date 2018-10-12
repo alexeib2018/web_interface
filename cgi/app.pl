@@ -416,6 +416,9 @@ sub delete_location {
 	my $account = shift;
 	my $location_id = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'locations');	
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -436,9 +439,31 @@ sub delete_location {
 	}
 	$sth->finish();
 
+	$query = "SELECT location
+	            FROM locations
+	           WHERE account='$account' AND
+	                      id='$location_id'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $old_location = '';
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$old_location = $array[0];
+	}
+	$sth->finish();
+
 	$query = "DELETE FROM locations
 	           WHERE account='$account' AND
                      id='$location_id'";
+
+	$log{'action'} = 'delete';
+	$log{'old_value'} = "$old_location";
 
 	$rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -448,6 +473,7 @@ sub delete_location {
 
 	$dbh->disconnect();
 
+	save_log(%log);
 	return 1;
 }
 
