@@ -316,6 +316,9 @@ sub create_location {
 	my $account = shift;
 	my $location = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'locations');	
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -341,6 +344,10 @@ sub create_location {
 	if ($location_id==0) {
 		$query = "INSERT INTO locations (location, account)
 		               VALUES ('$location','$account')";
+
+		$log{'action'} = 'insert';
+		$log{'new_value'} = "$location";
+
 		$rv = $dbh->do($query);
 		if (!defined $rv) {
 		  print "Error in request: " . $dbh->errstr . "\n";
@@ -349,6 +356,8 @@ sub create_location {
 	}
 
 	$dbh->disconnect();
+
+	save_log(%log);
 	return 1;
 }
 
@@ -363,7 +372,7 @@ sub edit_location {
 	my $query = "UPDATE locations
 	                SET location='$location'
 	              WHERE account='$account' AND
-	                    id='$location_id'";
+	                         id='$location_id'";
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -372,6 +381,7 @@ sub edit_location {
 	}
 
 	$dbh->disconnect();
+
 	return 1;
 }
 
@@ -410,6 +420,7 @@ sub delete_location {
 	}
 
 	$dbh->disconnect();
+
 	return 1;
 }
 
