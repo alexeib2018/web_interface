@@ -244,6 +244,9 @@ sub standing_order_delete_item {
 	my $day_of_week = shift;
 	my $location_id = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'standing_orders');
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -253,6 +256,9 @@ sub standing_order_delete_item {
 	                      day_of_week='$day_of_week' AND
 	                      location='$location_id'";
 
+	$log{'action'} = 'delete';
+	$log{'old_value'} = "WHERE item_no=$item_id AND day_of_week=$day_of_week AND location=$location_id";
+
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
 	  print "Error in request: " . $dbh->errstr . "\n";
@@ -260,6 +266,8 @@ sub standing_order_delete_item {
 	}
 
 	$dbh->disconnect();
+
+	save_log(%log);
 	return 1;
 }
 
