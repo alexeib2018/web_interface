@@ -1,10 +1,10 @@
 CREATE TABLE public.change_log (
     id integer NOT NULL,
-    email text,
+    account text,
     table_changed text,
     action text,
-    old_value text,
     new_value text,
+    old_value text,
     ip text,
     created timestamp without time zone DEFAULT now()
 );

@@ -17,13 +17,18 @@ my $dboptions = "-e";
 my $dbtty = "ansi";
 
 sub save_log {
-	my $account = shift;
+	my %log = @_;
+	my $account = $log{'account'};
+	my $table_changed = $log{'table_changed'};
+	my $action = $log{'action'};
+	my $new_value = $log{'new_value'};
+	my $old_value = $log{'old_value'};
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
-	my $query = "INSERT INTO change_log (email, ip)
-	                  VALUES ('$account','$ENV{'REMOTE_ADDR'}')";
+	my $query = "INSERT INTO change_log (account, table_changed, action, new_value, old_value, ip)
+	                  VALUES ('$account', '$table_changed', '$action', '$new_value', '$old_value', '$ENV{'REMOTE_ADDR'}')";
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -129,10 +134,13 @@ sub standing_order_create_or_update {
 	my $qte = shift;
 	my $active = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'standing_orders');
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
-	my $query = "SELECT id 
+	my $query = "SELECT id, day_of_week, location, item_no, quantity
 	               FROM standing_orders
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week' AND
@@ -147,9 +155,11 @@ sub standing_order_create_or_update {
 	}
 
 	my $order_id = 0;
+	my $old_value = '';
 	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
 		$order_id = $array[0];
+		$old_value = "day_of_week=$array[1], location=$array[2], item_no=$array[3], quantity=$array[4]";
 	}
 	$sth->finish();
 
@@ -157,6 +167,8 @@ sub standing_order_create_or_update {
 		if ($qte > 0) {
 			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active, item_active)
 			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
+			$log{'action'} = 'insert';
+			$log{'new_value'} = "day_of_week=$day_of_week, location=$location_id, item_no=$item_id, quantity=$qte";
 		} else {
 			return 0;
 		}
@@ -165,9 +177,14 @@ sub standing_order_create_or_update {
 			$query = "UPDATE standing_orders
 			             SET quantity='$qte', active='$active'
 			           WHERE id='$order_id'";
+			$log{'action'} = 'update';
+			$log{'new_value'} = "day_of_week=$day_of_week, location=$location_id, item_no=$item_id, quantity=$qte";
+			$log{'old_value'} = $old_value;
 		} elsif ($qte == 0) {
 			$query = "DELETE FROM standing_orders
 			           WHERE id='$order_id'";
+			$log{'action'} = 'delete';
+			$log{'old_value'} = $old_value;
 		} else {
 			return 0;
 		}
@@ -181,8 +198,7 @@ sub standing_order_create_or_update {
 
 	$dbh->disconnect();
 
-
-	save_log($account);
+	save_log(%log);
 	return 1;
 }
 
