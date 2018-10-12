@@ -366,13 +366,39 @@ sub edit_location {
 	my $location_id = shift;
 	my $location = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'locations');	
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
-	my $query = "UPDATE locations
-	                SET location='$location'
+	my $query = "SELECT location
+	               FROM locations
 	              WHERE account='$account' AND
-	                         id='$location_id'";
+	                    id='$location_id'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $old_location = '';
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$old_location = $array[0];
+	}
+	$sth->finish();
+
+	$query = "UPDATE locations
+	             SET location='$location'
+	           WHERE account='$account' AND
+	                      id='$location_id'";
+
+	$log{'action'} = 'update';
+	$log{'new_value'} = "$location";
+	$log{'old_value'} = "$old_location";
 
 	my $rv = $dbh->do($query);
 	if (!defined $rv) {
@@ -382,6 +408,7 @@ sub edit_location {
 
 	$dbh->disconnect();
 
+	save_log(%log);
 	return 1;
 }
 
