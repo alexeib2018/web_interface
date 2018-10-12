@@ -4,6 +4,8 @@ use strict;
 use Mojolicious::Lite;
 use DBI;
 
+#plugin 'ClientIP';
+
 require "settings.pl";
 our $dbhost;
 our $dbname;
@@ -14,14 +16,27 @@ my $dbport = "5432";
 my $dboptions = "-e";
 my $dbtty = "ansi";
 
+sub save_log {
+	my $account = shift;
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+	my $query = "INSERT INTO change_log (email, ip)
+	                  VALUES ('$account','$ENV{'REMOTE_ADDR'}')";
+
+	my $rv = $dbh->do($query);
+	if (!defined $rv) {
+	  print "Content-Type: text/plain\n\n";
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	$dbh->disconnect();
+}
 
 sub select_json {
 	my $fields = shift;
-	# my $table = shift;
-	# my $addon = shift;
-
-	# my $join_fields = join ',', @$fields;
-	# my $query = "SELECT $join_fields FROM $table $addon;";
 	my $query = shift;
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
@@ -165,6 +180,9 @@ sub standing_order_create_or_update {
 	}
 
 	$dbh->disconnect();
+
+
+	save_log($account);
 	return 1;
 }
 
@@ -180,8 +198,6 @@ sub standing_order_copy {
 	              WHERE account='$account' AND
 	                    day_of_week='$day_of_week_from' AND
 	                    location='$location_from'";
-
-	# print $query;
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
@@ -425,7 +441,7 @@ sub process_request {
 	if ($action eq '/api/login') {
 		my $name = select_json( ['name'], "SELECT name FROM customers WHERE account='$account'");
 
-		$self->render(text => '{"account":"'.$account.'","name":'.$name.'}', format => 'json');
+		$self->render(text => '{"account":"'.$account.'","name":'.$name.',"client_ip":"'.$ENV{'REMOTE_ADDR'}.'"}', format => 'json');
 	} elsif ($action eq '/api/get_data') {
 		my $items = select_json( ['id','description'], "SELECT items.item_no, description
 		                                                  FROM items
