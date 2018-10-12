@@ -499,6 +499,9 @@ sub replace_items {
 	my $item_to = shift;
 	my $location_id = shift;
 
+	my %log = ('account'=>$account,
+	           'table_changed'=>'standing_orders');
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -509,11 +512,17 @@ sub replace_items {
 		           WHERE account='$account' AND
 		                 item_no='$item_from' AND
 		                 location='$location_id'";
+		$log{'action'} = 'update';
+		$log{'new_value'} = "item_no=$item_to";
+		$log{'old_value'} = "WHERE item_no=$item_from AND location=$location_id";
 	} else {
 		$query = "UPDATE standing_orders
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
 		                 item_no='$item_from'";
+		$log{'action'} = 'update';
+		$log{'new_value'} = "item_no=$item_to";
+		$log{'old_value'} = "WHERE item_no=$item_from";
 	}
 
 	my $rv = $dbh->do($query);
@@ -523,6 +532,8 @@ sub replace_items {
 	}
 
 	$dbh->disconnect();
+
+	save_log(%log);
 	return 1;	
 }
 
