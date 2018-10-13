@@ -429,7 +429,7 @@ sub edit_location {
 	$log{'new_value'} = "$location";
 	$log{'old_value'} = "$old_location";
 
-	my $rv = $dbh->do($query);
+	$rv = $dbh->do($query);
 	if (!defined $rv) {
 	  print "Error in request: " . $dbh->errstr . "\n";
 	  exit(0);
@@ -473,8 +473,8 @@ sub delete_location {
 	           WHERE account='$account' AND
 	                      id='$location_id'";
 
-	my $sth = $dbh->prepare($query);
-	my $rv = $sth->execute();
+	$sth = $dbh->prepare($query);
+	$rv = $sth->execute();
 	if (!defined $rv) {
 	  print "Error in request: " . $dbh->errstr . "\n";
 	  exit(0);
