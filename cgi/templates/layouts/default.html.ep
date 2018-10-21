@@ -45,6 +45,12 @@
                  @click="active=4"
                  href="#">Item Exchange</a>
             </li>
+            <li class="nav-item" v-if="login">
+              <a class="nav-link"
+                 v-bind:class="{ active:(active==5) }"
+                 @click="active=5"
+                 href="#">Import</a>
+            </li>
           </ul>
           <div v-if="login" style="display:contents; font-size: smaller;">
             {{ login_account }}: {{ login_name }}

@@ -549,6 +549,16 @@ var app = new Vue({
               self.get_data()
               self.replace_search_results = []
            })
+    },
+    import_excel: function() {
+      var self=this
+      var params = new FormData()
+      params.append('name', this.username)
+      params.append('password', this.password)
+      axios.post('/cgi/app.pl?action=/api/import_excel', params)
+           .then(function(data) {
+              self.get_data()
+           })
     }
   },
   watch: {
