@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use Mojolicious::Lite;
 use DBI;
+use Spreadsheet::ParseXLSX;
+use Spreadsheet::Read;
 
 #plugin 'ClientIP';
 
@@ -23,6 +25,10 @@ sub save_log {
 	my $action = $log{'action'};
 	my $new_value = $log{'new_value'};
 	my $old_value = $log{'old_value'};
+
+	if (!defined $old_value) {
+		$old_value = '';
+	}
 
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
@@ -550,11 +556,141 @@ sub replace_items {
 	return 1;	
 }
 
+sub import_excel_create_or_update {
+	my $dbh = shift;
+	my $account = shift;
+	my $day_of_week = shift;
+	my $location_id = shift;
+	my $item_id = shift;
+	my $qte = shift;
+	my $active = shift;
+
+	my $query = "SELECT id, day_of_week, location, item_no, quantity
+	               FROM standing_orders
+	              WHERE account='$account' AND
+	                    day_of_week='$day_of_week' AND
+	                    location='$location_id' AND
+	                    item_no='$item_id'";
+
+	my $sth = $dbh->prepare($query);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  print "Error in request: " . $dbh->errstr . "\n";
+	  exit(0);
+	}
+
+	my $order_id = 0;
+	my $old_value = '';
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$order_id = $array[0];
+		$old_value = "day_of_week=$array[1], location=$array[2], item_no=$array[3], quantity=$array[4]";
+	}
+	$sth->finish();
+
+	if ($order_id == 0) {
+		if ($qte > 0) {
+			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active, item_active)
+			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
+		} else {
+			return 0;
+		}
+	} else {
+		if ($qte > 0) {
+			$query = "UPDATE standing_orders
+			             SET quantity='$qte', active='$active'
+			           WHERE id='$order_id'";
+		} elsif ($qte == 0) {
+			$query = "DELETE FROM standing_orders
+			           WHERE id='$order_id'";
+		} else {
+			return 0;
+		}
+	}
+
+	$rv = $dbh->do($query);
+	if (!defined $rv) {
+	    return 0;
+	}
+	return 1;
+}
+
+sub import_excel {
+	my $account = shift;
+
+	my $book = Spreadsheet::Read->new ("../tmp/orders.xlsx");
+	my $sheet = $book->sheet(1);
+	#my $cell  = $sheet->cell("D1");
+	#print $sheet->label;
+	#print $sheet->maxrow;
+
+	#my @dates;
+
+	#print $sheet->cell(7,6);
+
+	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
+	        {PrintError => 0});
+
+
+	my $location_id = 1;
+	my $item;
+	my $qte;
+	for my $row (9...$sheet->maxrow) {
+		$item = $sheet->cell(3, $row);
+		if ($item =~ m/^\d\d\d\d\d$/) {
+			# print "$item\n";
+
+			$qte = $sheet->cell(6, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(7, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(8, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(9, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(10, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(11, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true');
+			}
+
+			$qte = $sheet->cell(12, $row);
+			if ($qte =~ m/\s?\d+\s?/) {
+				import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true');
+			}		
+		}
+	}
+
+	$dbh->disconnect();
+
+	return 1;
+}
+
 sub process_request {
     my $self = shift;
     my $action = $self->param('action');
 	my $name = $self->param('name');
 	my $password = $self->param('password');
+
+	if (!defined $action) {
+		$action = 'help';
+	}
 
 	my $account = get_account($name, $password);
 
@@ -666,6 +802,13 @@ sub process_request {
 		my $location_id = $self->param('location_id');
 
 		if (replace_items($account, $item_from, $item_to, $location_id) == 0) {
+			return $self->render(text => '{"account":"0"}', format => 'json');
+		}
+
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');		
+	} elsif ($action eq '/api/import_excel') {
+
+		if (import_excel($account) == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
