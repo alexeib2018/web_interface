@@ -563,8 +563,8 @@ var app = new Vue({
             return
           }
           var file_base64 = e.target.result.substr(index+7)
-          params.append('name', this.username)
-          params.append('password', this.password)
+          params.append('name', self.username)
+          params.append('password', self.password)
           params.append('file_base64', file_base64)
           axios.post('/cgi/app.pl?action=/api/import_excel', params)
                .then(function(data) {
