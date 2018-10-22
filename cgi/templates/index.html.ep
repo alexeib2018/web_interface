@@ -278,17 +278,23 @@
     </div>
     <div class="clearfix"></div>
 
-    <div class="col-2 m-1">
-      <input type="file">
-    </div>
-    <div class="clearfix m-1"></div>
+    <input type="hidden" name="name" :value="username">
+    <input type="hidden" name="password" :value="password">
 
-    <div class="col-12 m-1">
-      <button type="button"
-              @click="import_excel()"
-              class="btn btn-success btn-sm"
-              style="font-size: large;">Upload</button>
-    </div>
+    <form action="javascript:void(0)" id="import_excel_form">
+      <div class="col-2 m-1">
+        <input type="file" id="import_excel_file">
+      </div>
+      <div class="clearfix m-1"></div>
+
+      <div class="col-12 m-1">
+        <button type="button"
+                @click="import_excel()"
+                class="btn btn-success btn-sm"
+                style="font-size: large;">Upload</button>
+      </div>
+    </form>
+
   </div>
 </div>
 

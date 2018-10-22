@@ -551,14 +551,30 @@ var app = new Vue({
            })
     },
     import_excel: function() {
-      var self=this
+      var self = this
       var params = new FormData()
-      params.append('name', this.username)
-      params.append('password', this.password)
-      axios.post('/cgi/app.pl?action=/api/import_excel', params)
-           .then(function(data) {
-              self.get_data()
-           })
+      var el = $('#import_excel_file')[0]
+      if (el.files && el.files[0]) {
+        var file_name = el.files[0].name;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var index = e.target.result.indexOf('base64,')
+          if (index<0) {
+            return
+          }
+          var file_base64 = e.target.result.substr(index+7)
+          params.append('name', this.username)
+          params.append('password', this.password)
+          params.append('file_base64', file_base64)
+          axios.post('/cgi/app.pl?action=/api/import_excel', params)
+               .then(function(data) {
+                  var form = $('#import_excel_form')[0]
+                  form.reset()
+                  self.get_data()
+               })
+        }
+        reader.readAsDataURL(el.files[0])
+      }
     }
   },
   watch: {
