@@ -5,6 +5,8 @@ use Mojolicious::Lite;
 use DBI;
 use Spreadsheet::ParseXLSX;
 use Spreadsheet::Read;
+use MIME::Base64;
+use File::Temp qw/ tempfile /;
 
 #plugin 'ClientIP';
 
@@ -617,8 +619,18 @@ sub import_excel_create_or_update {
 
 sub import_excel {
 	my $account = shift;
+	my $file_base64 = shift;
 
-	my $book = Spreadsheet::Read->new ("../tmp/orders.xlsx");
+	my($fh, $filename) = tempfile(DIR=>'../tmp/', SUFFIX=>'.xlsx');
+
+	#open (my $fh, '>', '../tmp/orders_new.xlsx');
+	binmode ($fh);
+	print {$fh} decode_base64($file_base64);
+	#print {$fh} $filename;
+	close $fh;
+
+	#my $filename = '../tmp/orders.xlsx';
+	my $book = Spreadsheet::Read->new($filename);
 	my $sheet = $book->sheet(1);
 	#my $cell  = $sheet->cell("D1");
 	#print $sheet->label;
@@ -807,8 +819,9 @@ sub process_request {
 
 		$self->render(text => '{"account":"'.$account.'"}', format => 'json');		
 	} elsif ($action eq '/api/import_excel') {
+        my $file_base64 = $self->param('file_base64');
 
-		if (import_excel($account) == 0) {
+		if (import_excel($account, $file_base64) == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
