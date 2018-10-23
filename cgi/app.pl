@@ -567,14 +567,16 @@ sub import_excel_create_or_update {
 	my $qte = shift;
 	my $active = shift;
 
-	my $query = "SELECT id, day_of_week, location, item_no, quantity
-	               FROM standing_orders
-	              WHERE account='$account' AND
-	                    day_of_week='$day_of_week' AND
-	                    location='$location_id' AND
-	                    item_no='$item_id'";
+	my $log_status = '';
 
-	my $sth = $dbh->prepare($query);
+	my $query_select = "SELECT id, day_of_week, location, item_no, quantity
+	                      FROM standing_orders
+	                     WHERE account='$account' AND
+	                           day_of_week='$day_of_week' AND
+	                           location='$location_id' AND
+	                           item_no='$item_id'";
+
+	my $sth = $dbh->prepare($query_select);
 	my $rv = $sth->execute();
 	if (!defined $rv) {
 	  print "Error in request: " . $dbh->errstr . "\n";
@@ -586,35 +588,43 @@ sub import_excel_create_or_update {
 	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
 		$order_id = $array[0];
-		$old_value = "day_of_week=$array[1], location=$array[2], item_no=$array[3], quantity=$array[4]";
+		#$old_value = "day_of_week=$array[1], location=$array[2], item_no=$array[3], quantity=$array[4]";
+		$old_value = $array[4];
 	}
 	$sth->finish();
 
+	my $query;
 	if ($order_id == 0) {
 		if ($qte > 0) {
 			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active, item_active)
 			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
+			$log_status = "insert";
 		} else {
-			return 0;
+			$log_status = "rejected";
 		}
 	} else {
 		if ($qte > 0) {
 			$query = "UPDATE standing_orders
 			             SET quantity='$qte', active='$active'
 			           WHERE id='$order_id'";
+			$log_status = "update($old_value)";
 		} elsif ($qte == 0) {
 			$query = "DELETE FROM standing_orders
 			           WHERE id='$order_id'";
+			$log_status = "delete($old_value)";
 		} else {
-			return 0;
+			$log_status = "rejected";
 		}
 	}
 
-	$rv = $dbh->do($query);
-	if (!defined $rv) {
-	    return 0;
+	if ($query) {
+		$rv = $dbh->do($query);
+		if (!defined $rv) {
+			$log_status = "db_error";
+		}
 	}
-	return 1;
+
+	return $log_status;
 }
 
 sub import_excel_get_or_create_location_id {
@@ -879,10 +889,6 @@ sub process_request {
 		}
 
 		my $records = '';
-#		foreach my $item (@ret) {
-#			$records .= $item.',';
-#		}
-
 		for(my $i=0; $i<=$#ret; $i++) {
 			my $item = $ret[$i];
 			if ($i == 0) {
