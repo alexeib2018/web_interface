@@ -567,6 +567,7 @@ sub import_excel_create_or_update {
 	my $qte = shift;
 	my $active = shift;
 
+	my @log = ($day_of_week, $item_id, $qte);
 	my $log_status = '';
 
 	my $query_select = "SELECT id, day_of_week, location, item_no, quantity
@@ -598,9 +599,9 @@ sub import_excel_create_or_update {
 		if ($qte > 0) {
 			$query = "INSERT INTO standing_orders (account, day_of_week, location, item_no, quantity, active, item_active)
 			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
-			$log_status = "insert";
+			$log_status = "new";
 		} else {
-			$log_status = "rejected";
+			$log_status = "reject";
 		}
 	} else {
 		if ($qte == $old_qte) {
@@ -615,7 +616,7 @@ sub import_excel_create_or_update {
 			           WHERE id='$order_id'";
 			$log_status = "delete($old_qte)";
 		} else {
-			$log_status = "rejected";
+			$log_status = "reject";
 		}
 	}
 
@@ -626,7 +627,8 @@ sub import_excel_create_or_update {
 		}
 	}
 
-	return $log_status;
+	push @log, $log_status;
+	return @log;
 }
 
 sub import_excel_get_or_create_location_id {
@@ -718,37 +720,37 @@ sub import_excel {
 
 			$qte = $sheet->cell(6, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(7, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(8, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(9, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(10, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(11, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(12, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true');
+				push @log, [import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true')];
 			}		
 		}
 	}
@@ -890,17 +892,23 @@ sub process_request {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
-		my $records = '';
+		my $records = '[';
 		for(my $i=0; $i<=$#ret; $i++) {
-			my $item = $ret[$i];
+			my $item_arr = $ret[$i];
+			my $day_of_week = $item_arr->[0];
+			my $item_id     = $item_arr->[1];
+			my $qte         = $item_arr->[2];
+			my $status      = $item_arr->[3];
+			my $item = '{"day_of_week":"'.$day_of_week.'","item_id":"'.$item_id.'","qte":"'.$qte.'","status":"'.$status.'"}';
 			if ($i == 0) {
 				$records .= $item
 			} else {
 				$records .= ','.$item;
 			}
 		}
+		$records .= ']';
 
-		$self->render(text => '{"account":"'.$account.'","log":"'.$records.'"}', format => 'json');		
+		$self->render(text => '{"account":"'.$account.'","log":'.$records.'}', format => 'json');		
 	} else {
 	    $self->render('index');	
 	}
