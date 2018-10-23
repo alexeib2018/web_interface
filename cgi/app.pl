@@ -690,6 +690,8 @@ sub import_excel {
 
 	#print $sheet->cell(7,6);
 
+	my @log = ();
+
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
@@ -704,44 +706,44 @@ sub import_excel {
 
 			$qte = $sheet->cell(6, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(7, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(8, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(9, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(10, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(11, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true');
 			}
 
 			$qte = $sheet->cell(12, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true');
+				push @log, import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true');
 			}		
 		}
 	}
 
 	$dbh->disconnect();
 
-	return 1;
+	return @log;
 }
 
 sub process_request {
@@ -871,11 +873,26 @@ sub process_request {
 	} elsif ($action eq '/api/import_excel') {
         my $file_base64 = $self->param('file_base64');
 
-		if (import_excel($account, $file_base64) == 0) {
+        my @ret = import_excel($account, $file_base64);
+		if ($#ret == 0) {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
-		$self->render(text => '{"account":"'.$account.'"}', format => 'json');		
+		my $records = '';
+#		foreach my $item (@ret) {
+#			$records .= $item.',';
+#		}
+
+		for(my $i=0; $i<=$#ret; $i++) {
+			my $item = $ret[$i];
+			if ($i == 0) {
+				$records .= $item
+			} else {
+				$records .= ','.$item;
+			}
+		}
+
+		$self->render(text => '{"account":"'.$account.'","log":"'.$records.'"}', format => 'json');		
 	} else {
 	    $self->render('index');	
 	}
