@@ -617,6 +617,56 @@ sub import_excel_create_or_update {
 	return 1;
 }
 
+sub import_excel_get_or_create_location_id {
+	my $account = shift;
+	my $dbh = shift;
+	my $location = shift;
+
+	my $query_select = "SELECT id
+	                      FROM locations
+	                     WHERE account='$account' AND
+	                          location='$location'";
+
+	my $sth = $dbh->prepare($query_select);
+	my $rv = $sth->execute();
+	if (!defined $rv) {
+	  	print "Error in request: " . $dbh->errstr . "\n";
+	  	exit(0);
+	}
+
+	my $location_id = 0;
+	my @result=();
+	while (my @array = $sth->fetchrow_array()) {
+		$location_id = $array[0];
+	}
+	$sth->finish();
+
+	if ($location_id == 0) {
+		my $query_insert = "INSERT INTO locations (location, account)
+   		                         VALUES ('$location','$account')";
+		$rv = $dbh->do($query_insert);
+		if (!defined $rv) {
+		  	print "Error in request: " . $dbh->errstr . "\n";
+		  	exit(0);
+		}
+
+		$sth = $dbh->prepare($query_select);
+		$rv = $sth->execute();
+		if (!defined $rv) {
+		  	print "Error in request: " . $dbh->errstr . "\n";
+		  	exit(0);
+		}
+
+		@result=();
+		while (my @array = $sth->fetchrow_array()) {
+			$location_id = $array[0];
+		}
+		$sth->finish();
+	}
+
+	return $location_id;
+}
+
 sub import_excel {
 	my $account = shift;
 	my $file_base64 = shift;
@@ -643,8 +693,8 @@ sub import_excel {
 	my $dbh = DBI->connect("dbi:Pg:dbname=$dbname;host=$dbhost;port=$dbport;options=$dboptions;tty=$dbtty","$username","$password",
 	        {PrintError => 0});
 
-
-	my $location_id = 1;
+	my $location = $sheet->label;
+	my $location_id = import_excel_get_or_create_location_id($account, $dbh, $location);
 	my $item;
 	my $qte;
 	for my $row (9...$sheet->maxrow) {
