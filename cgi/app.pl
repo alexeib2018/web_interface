@@ -584,12 +584,12 @@ sub import_excel_create_or_update {
 	}
 
 	my $order_id = 0;
-	my $old_value = '';
+	my $old_qte = '';
 	my @result=();
 	while (my @array = $sth->fetchrow_array()) {
 		$order_id = $array[0];
 		#$old_value = "day_of_week=$array[1], location=$array[2], item_no=$array[3], quantity=$array[4]";
-		$old_value = $array[4];
+		$old_qte = $array[4];
 	}
 	$sth->finish();
 
@@ -603,15 +603,17 @@ sub import_excel_create_or_update {
 			$log_status = "rejected";
 		}
 	} else {
-		if ($qte > 0) {
+		if ($qte == $old_qte) {
+			$log_status = "same";
+		} elsif ($qte > 0) {
 			$query = "UPDATE standing_orders
 			             SET quantity='$qte', active='$active'
 			           WHERE id='$order_id'";
-			$log_status = "update($old_value)";
+			$log_status = "update($old_qte)";
 		} elsif ($qte == 0) {
 			$query = "DELETE FROM standing_orders
 			           WHERE id='$order_id'";
-			$log_status = "delete($old_value)";
+			$log_status = "delete($old_qte)";
 		} else {
 			$log_status = "rejected";
 		}
