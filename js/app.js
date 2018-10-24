@@ -59,7 +59,8 @@ var app = new Vue({
       replace_from_item: 0,
       replace_to_item: 0,
       replace_location: 0,
-      replace_search_results: []
+      replace_search_results: [],
+      import_excel_log: []
     }
   },
   methods: {
@@ -568,8 +569,7 @@ var app = new Vue({
           params.append('file_base64', file_base64)
           axios.post('/cgi/app.pl?action=/api/import_excel', params)
                .then(function(data) {
-                  var form = $('#import_excel_form')[0]
-                  form.reset()
+                  self.import_excel_log = data.data.log
                   self.get_data()
                })
         }
@@ -589,6 +589,11 @@ var app = new Vue({
         this.replace_collect_items()
         this.replace_search_results = []
       }
+      var form=$('#import_excel_form')[0]
+      if (form) {
+        form.reset()
+      }
+      this.import_excel_log = []
     },
     index: function() {
       this.index_table_collect()
