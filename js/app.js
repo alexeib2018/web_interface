@@ -606,6 +606,15 @@ var app = new Vue({
       this.replace_search_results = []
     }
   },
+  filters: {
+    capitalize : function(value) {
+      if (!value) {
+        return ''
+      }
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+  },
   mounted: function() {
   }
 })

@@ -295,7 +295,7 @@
 
   <table  class="table table-striped table-sm" style="width:100%; margin-top:20px">
     <tr v-for="item in import_excel_log">
-      <td>{{ item.day_of_week }}</td>
+      <td>{{ item.day_of_week | capitalize }}</td>
       <td>{{ item.item_id }}</td>
       <td>{{ items[item.item_id] }}</td>
       <td>{{ item.qte }}</td>
