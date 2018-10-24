@@ -562,12 +562,31 @@ sub import_excel_create_or_update {
 	my $dbh = shift;
 	my $account = shift;
 	my $day_of_week = shift;
+	my $date = shift;
 	my $location_id = shift;
 	my $item_id = shift;
 	my $qte = shift;
 	my $active = shift;
 
+	my $timezone = -7*60*60;
+	my $epoc = time() + $timezone;
+	my $days = int($epoc / (24*60*60));
+	my $hours = int( ($epoc - $days * 24*60*60) / (60*60) );
+
 	my @log = ($day_of_week, $item_id, $qte);
+
+	if ($hours < 8) {
+		if ($date - 25569 < $days+1) {
+			push @log, "REJECT";
+			return @log;
+		}
+	} else {
+		if ($date - 25569 < $days+2) {
+			push @log, "REJECT";
+			return @log;
+		}		
+	}
+
 	my $log_status = '';
 
 	my $query_select = "SELECT id, day_of_week, location, item_no, quantity
@@ -601,7 +620,7 @@ sub import_excel_create_or_update {
 			               VALUES ('$account','$day_of_week', '$location_id', '$item_id', '$qte', '$active', 'true')";
 			$log_status = "new";
 		} else {
-			$log_status = "reject";
+			$log_status = "REJECT";
 		}
 	} else {
 		if ($qte == $old_qte) {
@@ -616,7 +635,7 @@ sub import_excel_create_or_update {
 			           WHERE id='$order_id'";
 			$log_status = "delete($old_qte)";
 		} else {
-			$log_status = "reject";
+			$log_status = "REJECT";
 		}
 	}
 
@@ -713,6 +732,14 @@ sub import_excel {
 	my $location_id = import_excel_get_or_create_location_id($account, $dbh, $location);
 	push @log, [$location];
 
+	my $sunday_date    = $sheet->cell(6, 6);
+	my $monday_date    = $sheet->cell(7, 6);
+	my $tuesday_date   = $sheet->cell(8, 6);
+	my $wednesday_date = $sheet->cell(9, 6);
+	my $thursday_date  = $sheet->cell(10, 6);
+	my $friday_date    = $sheet->cell(11, 6);
+	my $saturday_date  = $sheet->cell(12, 6);
+
 	my $item;
 	my $qte;
 	for my $row (9...$sheet->maxrow) {
@@ -722,37 +749,37 @@ sub import_excel {
 
 			$qte = $sheet->cell(6, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'sunday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'sunday',    $sunday_date,    $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(7, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'monday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'monday',    $monday_date,    $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(8, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'tuesday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'tuesday',   $tuesday_date,   $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(9, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'wednesday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'wednesday', $wednesday_date, $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(10, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'thursday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'thursday',  $thursday_date,  $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(11, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'friday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'friday',    $friday_date,    $location_id, $item, $qte, 'true')];
 			}
 
 			$qte = $sheet->cell(12, $row);
 			if ($qte =~ m/\s?\d+\s?/) {
-				push @log, [import_excel_create_or_update($dbh, $account, 'saturday', $location_id, $item, $qte, 'true')];
+				push @log, [import_excel_create_or_update($dbh, $account, 'saturday',  $saturday_date,  $location_id, $item, $qte, 'true')];
 			}		
 		}
 	}
@@ -885,7 +912,7 @@ sub process_request {
 			return $self->render(text => '{"account":"0"}', format => 'json');
 		}
 
-		$self->render(text => '{"account":"'.$account.'"}', format => 'json');		
+		$self->render(text => '{"account":"'.$account.'"}', format => 'json');
 	} elsif ($action eq '/api/import_excel') {
         my $file_base64 = $self->param('file_base64');
 

@@ -13,7 +13,7 @@ my $cell  = $sheet->cell("D1");
 
 my $item;
 my $qte;
-for my $row (9...$sheet->maxrow) {
+for my $row (9...9) { 	# $sheet->maxrow) {
 	$item = $sheet->cell(3, $row);
 	if ($item =~ m/^\d\d\d\d\d$/) {
 		print "$item\n";
@@ -54,3 +54,32 @@ for my $row (9...$sheet->maxrow) {
 		}		
 	}
 }
+
+$date1970 = $sheet->cell(7,6) - 25569;
+print $sheet->cell(7,6)."\n";
+#print $sheet->cell(7,6)."\n";
+print $date1970."\n";
+
+my $datestring = localtime();
+print "Current date and time $datestring\n";
+
+my $gmt = gmtime();
+print "GMT date and time $gmt\n";
+
+my $timezone = -7*60*60;
+
+my $epoc = time() + $timezone;
+print "Epoc from 01 Jan 1970 $epoc\n";
+
+my $yesterday = localtime($epoc - 24*60*60);
+print "Yesterday date and time $yesterday\n";
+
+my $days = int($epoc / (24*60*60));
+print "Days: $days\n";
+
+my $hours = int( ($epoc - $days * 24*60*60) / (60*60) );
+print "Hours: $hours\n";
+
+my $offset = $datestring - $gmt;
+print "Time offset: $offset\n";
+
