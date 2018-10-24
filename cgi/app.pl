@@ -711,6 +711,8 @@ sub import_excel {
 
 	my $location = $sheet->label;
 	my $location_id = import_excel_get_or_create_location_id($account, $dbh, $location);
+	push @log, [$location];
+
 	my $item;
 	my $qte;
 	for my $row (9...$sheet->maxrow) {
