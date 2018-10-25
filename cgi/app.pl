@@ -576,12 +576,12 @@ sub import_excel_create_or_update {
 	my @log = ($day_of_week, $item_id, $qte);
 
 	if ($hours < 8) {
-		if ($date - 25569 < $days+1) {
+		if ($date - 25569 < $days) {
 			push @log, "REJECT";
 			return @log;
 		}
 	} else {
-		if ($date - 25569 < $days+2) {
+		if ($date - 25569 < $days+1) {
 			push @log, "REJECT";
 			return @log;
 		}		
@@ -742,7 +742,7 @@ sub import_excel {
 
 	my $item;
 	my $qte;
-	for my $row (9...$sheet->maxrow) {
+	for my $row (10...$sheet->maxrow) {
 		$item = $sheet->cell(3, $row);
 		if ($item =~ m/^\d\d\d\d\d$/) {
 			# print "$item\n";

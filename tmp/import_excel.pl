@@ -83,3 +83,10 @@ print "Hours: $hours\n";
 my $offset = $datestring - $gmt;
 print "Time offset: $offset\n";
 
+print $sheet->cell(6,6)."\n";
+print $sheet->cell(7,6)."\n";
+print $sheet->cell(8,6)."\n";
+print $sheet->cell(9,6)."\n";
+print $sheet->cell(10,6)."\n";
+print $sheet->cell(11,6)."\n";
+print $sheet->cell(12,6)."\n";
