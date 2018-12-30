@@ -298,7 +298,8 @@ sub standing_order_activate {
 	                    location='$location_id'";
 
 	$log{'action'} = 'update';
-	$log{'new_value'} = "active=$active";
+	$log{'new_value'} = "active=$active, day_of_week=$day_of_week, location=$location_id";
+
 	if ($active) {
 		$log{'old_value'} = "active=0";
 	} else {
