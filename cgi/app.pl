@@ -533,7 +533,13 @@ sub replace_items {
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
 		                 item_no='$item_from' AND
-		                 location='$location_id'";
+		                 location='$location_id' AND
+		                 NOT day_of_week IN (
+		                 	SELECT day_of_week
+		                 	FROM standing_orders
+		                 	WHERE item_no='$item_to' AND
+		                 	      location='$location_id'
+		                 	GROUP BY day_of_week)";
 		$log{'action'} = 'update';
 		$log{'new_value'} = "item_no=$item_to";
 		$log{'old_value'} = "WHERE item_no=$item_from AND location=$location_id";
@@ -541,7 +547,12 @@ sub replace_items {
 		$query = "UPDATE standing_orders
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
-		                 item_no='$item_from'";
+		                 item_no='$item_from' AND
+		                 NOT day_of_week IN (
+		                 	SELECT day_of_week
+		                 	FROM standing_orders
+		                 	WHERE item_no='$item_to'
+		                 	GROUP BY day_of_week)";
 		$log{'action'} = 'update';
 		$log{'new_value'} = "item_no=$item_to";
 		$log{'old_value'} = "WHERE item_no=$item_from";
@@ -810,7 +821,8 @@ sub process_request {
 		my $items = select_json( ['id','description'], "SELECT items.item_no, description
 		                                                  FROM items
 		                                                  JOIN prices ON items.item_no=prices.item_no
-		                                                           WHERE prices.account='$account'");
+		                                                           WHERE prices.account='$account'
+		                                                  ORDER BY brand,web_cat,web_sort" );
 		my $locations = select_json( ['id','location'], "SELECT id, location
 		                                                   FROM locations
 		                                                  WHERE account='$account'");
