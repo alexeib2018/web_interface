@@ -821,7 +821,8 @@ sub process_request {
 		my $items = select_json( ['id','description'], "SELECT items.item_no, description
 		                                                  FROM items
 		                                                  JOIN prices ON items.item_no=prices.item_no
-		                                                           WHERE prices.account='$account'");
+		                                                           WHERE prices.account='$account'
+		                                                  ORDER BY brand,web_cat,web_sort" );
 		my $locations = select_json( ['id','location'], "SELECT id, location
 		                                                   FROM locations
 		                                                  WHERE account='$account'");
