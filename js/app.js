@@ -24,6 +24,7 @@ var app = new Vue({
                   6: 'saturday'
       },
       items: {},
+      items_sorted: [],
       locations: {},
       locations_sorted: [],
       orders: [],
@@ -184,8 +185,14 @@ var app = new Vue({
                 if (data.data.account!=0) {
                   var items = data.data.items
                   self.items = {}
+                  self.items_sorted = []
                   for (var item in items) {
-                    self.items[ items[item].id ] = items[item].description.replace(/\b[a-z](?=(?:[a-z]|\W|$))/g, function($0) { return $0.toUpperCase();})
+                    var id = items[item].id
+                    var description = items[item].description.replace(/\b[a-z](?=(?:[a-z]|\W|$))/g, function($0) { return $0.toUpperCase();})
+                    self.items[ id ] = description
+                    if (self.items_sorted.length == 0 || self.items_sorted[self.items_sorted.length-1].id != id) {
+                      self.items_sorted.push({ id:id, description:description })
+                    }
                   }
 
                   var locations = data.data.locations

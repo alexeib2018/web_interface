@@ -550,11 +550,11 @@ sub replace_items {
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
 		                 item_no='$item_from' AND
-		                 NOT CONCAT(day_of_week, '_', location::text) IN (
-		                 	SELECT CONCAT(day_of_week, '_', location::text)
-		                 	FROM standing_orders
-		                 	WHERE item_no='$item_to'
-		                 	GROUP BY day_of_week,location)";
+		                 NOT CONCAT(day_of_week, '_', location::text) IN ( 
+		                    SELECT CONCAT(day_of_week, '_', location::text)
+		                    FROM standing_orders
+		                    WHERE item_no='$item_to'
+		                    GROUP BY day_of_week,location)";
 		$log{'action'} = 'update';
 		$log{'new_value'} = "item_no=$item_to";
 		$log{'old_value'} = "WHERE item_no=$item_from";
@@ -829,11 +829,16 @@ sub process_request {
 		                                                   FROM locations
 		                                                  WHERE account='$account'");
 		my $orders = select_json( ['day','location','item','qte','active'],
-								  "SELECT day_of_week,location,item_no,quantity,active
-								     FROM standing_orders
-								    WHERE account='$account' AND
-								          item_active=true");
-
+									"SELECT day_of_week,
+									        location,
+									        standing_orders.item_no AS item_no,
+									        quantity,
+									        standing_orders.active AS active
+									   FROM standing_orders
+									   JOIN items ON standing_orders.item_no=items.item_no
+									  WHERE account='$account' AND
+									        item_active=true
+							       ORDER BY items.brand,items.web_cat,items.web_sort" );
 		my $result = '{"account":"'.$account.'","items":'.$items.',"locations":'.$locations.',"orders":'.$orders.'}';
 	    $self->render(text => $result, format => 'json');
 	} elsif ($action eq '/api/order_save') {
