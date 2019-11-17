@@ -20,6 +20,8 @@ my $dbport = "5432";
 my $dboptions = "-e";
 my $dbtty = "ansi";
 
+# print "Content-Type: text/plain\n\n";
+
 sub save_log {
 	my %log = @_;
 	my $account = $log{'account'};
@@ -548,11 +550,11 @@ sub replace_items {
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
 		                 item_no='$item_from' AND
-		                 NOT day_of_week IN (
-		                 	SELECT day_of_week
+		                 NOT CONCAT(day_of_week, '_', location::text) IN (
+		                 	SELECT CONCAT(day_of_week, '_', location::text)
 		                 	FROM standing_orders
 		                 	WHERE item_no='$item_to'
-		                 	GROUP BY day_of_week)";
+		                 	GROUP BY day_of_week,location)";
 		$log{'action'} = 'update';
 		$log{'new_value'} = "item_no=$item_to";
 		$log{'old_value'} = "WHERE item_no=$item_from";
