@@ -550,11 +550,11 @@ sub replace_items {
 		             SET item_no='$item_to'
 		           WHERE account='$account' AND
 		                 item_no='$item_from' AND
-		                 NOT CONCAT(day_of_week, '_', location::text) IN (
-		                 	SELECT CONCAT(day_of_week, '_', location::text)
-		                 	FROM standing_orders
-		                 	WHERE item_no='$item_to'
-		                 	GROUP BY day_of_week,location)";
+		                 NOT CONCAT(day_of_week, '_', location::text) IN ( 
+		                    SELECT CONCAT(day_of_week, '_', location::text)
+		                    FROM standing_orders
+		                    WHERE item_no='$item_to'
+		                    GROUP BY day_of_week,location)";
 		$log{'action'} = 'update';
 		$log{'new_value'} = "item_no=$item_to";
 		$log{'old_value'} = "WHERE item_no=$item_from";
