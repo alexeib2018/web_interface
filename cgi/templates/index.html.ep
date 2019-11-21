@@ -248,12 +248,12 @@
 
     <div class="col-12 m-1">
       <button type="button"
-              v-if="!replace_search_results.length"
+              v-if="!replace_search_results_fl"
               @click="replace_search()"
               class="btn btn-success btn-sm"
               style="font-size: large;">Search</button>
       <button type="button"
-              v-if="replace_search_results.length"
+              v-if="replace_search_results_fl"
               @click="replace_process()"
               class="btn btn-success btn-sm"
               style="font-size: large;">Replace</button>

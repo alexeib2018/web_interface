@@ -61,6 +61,7 @@ var app = new Vue({
       replace_to_item: 0,
       replace_location: 0,
       replace_search_results: [],
+      replace_search_results_fl: false,
       import_excel_log: []
     }
   },
@@ -526,6 +527,7 @@ var app = new Vue({
     },
     replace_search: function() {
       this.replace_search_results = []
+      this.replace_search_results_fl = true
       for (var key in this.orders) {
         var order = this.orders[key]
         if (this.replace_location != 0) {
@@ -545,6 +547,7 @@ var app = new Vue({
       }
     },
     replace_process: function() {
+      this.replace_search_results_fl = false
       var self=this
       var params = new FormData()
       params.append('name', this.username)
