@@ -66,6 +66,27 @@ var app = new Vue({
     }
   },
   methods: {
+    resolve_location: function(location) {
+      return this.locations[location]
+    },
+    resolve_day: function(day) {
+      if (day==0) {
+        return 'Sunday'
+      } else if (day==1) {
+        return 'Monday'
+      } else if (day==2) {
+        return 'Tuesday'
+      } else if (day==3) {
+        return 'Wednesday'
+      } else if (day==4) {
+        return 'Thursday'
+      } else if (day==5) {
+        return 'Friday'
+      } else if (day==6) {
+        return 'Saturday'
+      }
+      return 'Unknown ' + day
+    },
     table_by_date: function() {
       function compare(location1, location2) {
         var loc1str = self.locations[location1].toLowerCase().replace(/\s+/g, ' ')
