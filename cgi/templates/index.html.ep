@@ -36,7 +36,7 @@
 <div v-if="active==1">
   <ul>
   	<li v-for="row in table">
-	  <b>{{ days[row.day] }}</b>
+	  <b>{{ resolve_day(row.day) }}</b>
       <button type="button" 
       		  @click="new_day=row.day; modal_order_show()"
               class="btn btn-success btn-sm">New Order</button>
@@ -50,7 +50,7 @@
 		    	<p style="margin:0px">
 			    	<span v-if="index==''+row.day+'_'+location" @click.stop="index = ''">[&ndash;]</span>
 			    	<span v-if="index!=''+row.day+'_'+location">[+]</span>
-	 	    	    {{ locations[location] }}
+	 	    	    {{ resolve_location(location) }}
 	 	    	</p>
 	 	    	<p v-if="index==''+row.day+'_'+location" style="display: inline;">
 			    	<button type="button"
