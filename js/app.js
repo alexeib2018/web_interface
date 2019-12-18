@@ -89,8 +89,14 @@ var app = new Vue({
     },
     table_by_date: function() {
       function compare(location1, location2) {
-        var loc1str = self.locations[location1].toLowerCase().replace(/\s+/g, ' ')
-        var loc2str = self.locations[location2].toLowerCase().replace(/\s+/g, ' ')
+        var loc1str = ''
+        try {
+          loc1str = self.locations[location1].toLowerCase().replace(/\s+/g, ' ')
+        } catch (e) {}
+        var loc2str = ''
+        try {
+          loc2str = self.locations[location2].toLowerCase().replace(/\s+/g, ' ')
+        } catch (e) {}
         return loc1str > loc2str
       }
       function insert(day, location) {
